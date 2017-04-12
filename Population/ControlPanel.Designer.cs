@@ -144,12 +144,14 @@
             this.chkOpaqueAll.TabIndex = 4;
             this.chkOpaqueAll.Text = "Apply to All";
             this.chkOpaqueAll.UseVisualStyleBackColor = true;
+            this.chkOpaqueAll.CheckedChanged += new System.EventHandler(this.chkOpaqueAll_CheckedChanged);
             // 
             // ControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(266, 254);
+            this.ControlBox = false;
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnStart);

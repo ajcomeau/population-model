@@ -15,6 +15,7 @@ namespace Population
         public event EventHandler chkSolidChangedEvent;
         public event EventHandler chkSolidAllChangedEvent;
         public event EventHandler tbOpacityValueChangedEvent;
+        public event EventHandler chkOpacityAllChangedEvent;
         public event EventHandler runStatusChangeEvent;
         public event EventHandler clearButtonClickEvent;
         public event EventHandler exitButtonClickEvent;
@@ -22,24 +23,30 @@ namespace Population
         private bool vchkSolidVal;
         private bool vchkSolidAllVal;
         private int vtbOpacityVal;
-        private bool runningVal;
+        private bool vchkOpacityAllVal;
+        private bool vRunningVal;
 
-        public bool runningStatus
+        public bool RunStatus
         {
-            get { return runningVal; }
+            get { return vRunningVal; }
         }
 
-        public int tbOpacityValue
+        public int MemberOpacityValue
         {
             get { return vtbOpacityVal; }
         }
 
-        public bool chkSolidValue
+        public bool ApplyOpacityToAll
+        {
+            get { return vchkOpacityAllVal; }
+        }
+
+        public bool MembersSolid
         {
             get { return vchkSolidVal; }
         }
 
-        public bool chkSolidAllValue
+        public bool AllMembersSolid
         {
             get { return vchkSolidAllVal; }
         }
@@ -55,6 +62,8 @@ namespace Population
             EventHandler handler = chkSolidChangedEvent;
             if (handler != null)
                 handler(this, e);
+
+            this.chkSolidAll.Enabled = this.chkSolid.Checked;
         }
 
         private void chkSolidAll_CheckedChanged(object sender, EventArgs e)
@@ -75,16 +84,15 @@ namespace Population
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            runningVal = true;
+            vRunningVal = true;
             EventHandler handler = runStatusChangeEvent;
             if (handler != null)
                 handler(this, e);
-
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            runningVal = false;
+            vRunningVal = false;
             EventHandler handler = runStatusChangeEvent;
             if (handler != null)
                 handler(this, e);
@@ -100,6 +108,13 @@ namespace Population
         private void btnExit_Click(object sender, EventArgs e)
         {
             EventHandler handler = exitButtonClickEvent;
+            if (handler != null)
+                handler(this, e);
+        }
+
+        private void chkOpaqueAll_CheckedChanged(object sender, EventArgs e)
+        {
+            EventHandler handler = chkOpacityAllChangedEvent;
             if (handler != null)
                 handler(this, e);
         }

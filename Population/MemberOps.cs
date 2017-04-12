@@ -17,14 +17,95 @@ namespace Population
 
         // Class requires a reference to the canvas for current height and width.
         private Canvas workingCanvas;
+        ControlPanel settingsPanel;
 
+        // Values returned from settings panel.
+        private bool vSolidMembers;
+        private bool vSolidAllMembers;
+        private int vOpacity;
+        private bool vOpacityAll;
+        private bool vRunning;
+
+        // Properties for settings panel values.
+        public bool SolidMembers
+        {
+            get { return vSolidMembers; }
+        }
+
+        public bool AllMembersSolid
+        {
+            get { return vSolidMembers; }
+        }
+
+        public int MemberOpacity
+        {
+            get { return vOpacity; }
+        }
+
+        public bool ApplyOpacityToAll
+        {
+            get { return vOpacityAll; }
+        }
+
+        public bool IsRunning
+        {
+            get { return vRunning; }
+        }
 
         public MemberOps(Canvas CurrentCanvas)
         {
             // Primary constructor
             workingCanvas = CurrentCanvas;
-            ControlPanel settingsPanel = new ControlPanel();
+            settingsPanel = new ControlPanel();
+            SettingsEventWiring();
             settingsPanel.Show();
+        }
+
+        private void SettingsEventWiring()
+        {
+            // Link each event from the control panel to an event handler.
+            settingsPanel.chkSolidChangedEvent += SettingsPanel_chkSolidChangedEvent;
+            settingsPanel.chkSolidAllChangedEvent += SettingsPanel_chkSolidAllChangedEvent;
+            settingsPanel.tbOpacityValueChangedEvent += SettingsPanel_tbOpacityValueChangedEvent;
+            settingsPanel.chkOpacityAllChangedEvent += SettingsPanel_chkOpacityAllChangedEvent;
+            settingsPanel.runStatusChangeEvent += SettingsPanel_runStatusChangeEvent;
+            settingsPanel.clearButtonClickEvent += SettingsPanel_clearButtonClickEvent;
+            settingsPanel.exitButtonClickEvent += SettingsPanel_exitButtonClickEvent;
+        }
+
+        private void SettingsPanel_chkOpacityAllChangedEvent(object sender, EventArgs e)
+        {
+            this.vOpacityAll = settingsPanel.ApplyOpacityToAll;
+        }
+
+        private void SettingsPanel_exitButtonClickEvent(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SettingsPanel_clearButtonClickEvent(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SettingsPanel_runStatusChangeEvent(object sender, EventArgs e)
+        {
+            this.vRunning = settingsPanel.RunStatus;
+        }
+
+        private void SettingsPanel_tbOpacityValueChangedEvent(object sender, EventArgs e)
+        {
+            this.vOpacity = settingsPanel.MemberOpacityValue;
+        }
+
+        private void SettingsPanel_chkSolidAllChangedEvent(object sender, EventArgs e)
+        {
+            this.vSolidAllMembers = settingsPanel.AllMembersSolid;
+        }
+
+        private void SettingsPanel_chkSolidChangedEvent(object sender, EventArgs e)
+        {
+            this.vSolidMembers = settingsPanel.MembersSolid;
         }
 
         public Ellipse CreateEllipseObject()
