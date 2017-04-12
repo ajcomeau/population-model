@@ -23,6 +23,8 @@ namespace Population
         {
             // Primary constructor
             workingCanvas = CurrentCanvas;
+            ControlPanel settingsPanel = new ControlPanel();
+            settingsPanel.Show();
         }
 
         public Ellipse CreateEllipseObject()

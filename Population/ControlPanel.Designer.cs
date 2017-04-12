@@ -33,12 +33,12 @@
             this.HelpTips = new System.Windows.Forms.ToolTip(this.components);
             this.chkSolidAll = new System.Windows.Forms.CheckBox();
             this.tbOpacity = new System.Windows.Forms.TrackBar();
-            this.lblOpacity = new System.Windows.Forms.Label();
-            this.chkOpaqueAll = new System.Windows.Forms.CheckBox();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
+            this.lblOpacity = new System.Windows.Forms.Label();
+            this.chkOpaqueAll = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.tbOpacity)).BeginInit();
             this.SuspendLayout();
             // 
@@ -52,6 +52,7 @@
             this.chkSolid.Text = "Make objects solid";
             this.HelpTips.SetToolTip(this.chkSolid, "Solid objects will collide with each other and lose health as a result.");
             this.chkSolid.UseVisualStyleBackColor = true;
+            this.chkSolid.CheckedChanged += new System.EventHandler(this.chkSolid_CheckedChanged);
             // 
             // chkSolidAll
             // 
@@ -64,6 +65,7 @@
             this.chkSolidAll.Text = "All objects";
             this.HelpTips.SetToolTip(this.chkSolidAll, "Make existing objects solid as well as new objects.");
             this.chkSolidAll.UseVisualStyleBackColor = true;
+            this.chkSolidAll.CheckedChanged += new System.EventHandler(this.chkSolidAll_CheckedChanged);
             // 
             // tbOpacity
             // 
@@ -74,6 +76,55 @@
             this.tbOpacity.TabIndex = 2;
             this.tbOpacity.TickFrequency = 5;
             this.HelpTips.SetToolTip(this.tbOpacity, "Adjust the transparency of objects on the screen.");
+            this.tbOpacity.ValueChanged += new System.EventHandler(this.tbOpacity_ValueChanged);
+            // 
+            // btnStop
+            // 
+            this.btnStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStop.Location = new System.Drawing.Point(156, 142);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStop.TabIndex = 5;
+            this.btnStop.Text = "Stop";
+            this.HelpTips.SetToolTip(this.btnStop, "Pause animation.");
+            this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            // 
+            // btnStart
+            // 
+            this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnStart.Location = new System.Drawing.Point(36, 142);
+            this.btnStart.Name = "btnStart";
+            this.btnStart.Size = new System.Drawing.Size(75, 23);
+            this.btnStart.TabIndex = 6;
+            this.btnStart.Text = "Start";
+            this.HelpTips.SetToolTip(this.btnStart, "Start animation.");
+            this.btnStart.UseVisualStyleBackColor = true;
+            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
+            // 
+            // btnClear
+            // 
+            this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnClear.Location = new System.Drawing.Point(36, 193);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(75, 23);
+            this.btnClear.TabIndex = 7;
+            this.btnClear.Text = "Clear";
+            this.HelpTips.SetToolTip(this.btnClear, "Clear objects from field.");
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // btnExit
+            // 
+            this.btnExit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExit.Location = new System.Drawing.Point(156, 193);
+            this.btnExit.Name = "btnExit";
+            this.btnExit.Size = new System.Drawing.Size(75, 23);
+            this.btnExit.TabIndex = 8;
+            this.btnExit.Text = "Exit";
+            this.HelpTips.SetToolTip(this.btnExit, "Exit the program.");
+            this.btnExit.UseVisualStyleBackColor = true;
+            this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
             // lblOpacity
             // 
@@ -93,50 +144,6 @@
             this.chkOpaqueAll.TabIndex = 4;
             this.chkOpaqueAll.Text = "Apply to All";
             this.chkOpaqueAll.UseVisualStyleBackColor = true;
-            // 
-            // btnStop
-            // 
-            this.btnStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStop.Location = new System.Drawing.Point(156, 142);
-            this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(75, 23);
-            this.btnStop.TabIndex = 5;
-            this.btnStop.Text = "Stop";
-            this.HelpTips.SetToolTip(this.btnStop, "Pause animation.");
-            this.btnStop.UseVisualStyleBackColor = true;
-            // 
-            // btnStart
-            // 
-            this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStart.Location = new System.Drawing.Point(36, 142);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(75, 23);
-            this.btnStart.TabIndex = 6;
-            this.btnStart.Text = "Start";
-            this.HelpTips.SetToolTip(this.btnStart, "Start animation.");
-            this.btnStart.UseVisualStyleBackColor = true;
-            // 
-            // btnClear
-            // 
-            this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(36, 193);
-            this.btnClear.Name = "btnClear";
-            this.btnClear.Size = new System.Drawing.Size(75, 23);
-            this.btnClear.TabIndex = 7;
-            this.btnClear.Text = "Clear";
-            this.HelpTips.SetToolTip(this.btnClear, "Clear objects from field.");
-            this.btnClear.UseVisualStyleBackColor = true;
-            // 
-            // btnExit
-            // 
-            this.btnExit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExit.Location = new System.Drawing.Point(156, 193);
-            this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(75, 23);
-            this.btnExit.TabIndex = 8;
-            this.btnExit.Text = "Exit";
-            this.HelpTips.SetToolTip(this.btnExit, "Exit the program.");
-            this.btnExit.UseVisualStyleBackColor = true;
             // 
             // ControlPanel
             // 
