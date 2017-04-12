@@ -114,6 +114,7 @@ namespace Population
 
         private void chkOpaqueAll_CheckedChanged(object sender, EventArgs e)
         {
+            vchkOpacityAllVal = chkOpaqueAll.Checked;
             EventHandler handler = chkOpacityAllChangedEvent;
             if (handler != null)
                 handler(this, e);
