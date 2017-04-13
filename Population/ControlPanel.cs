@@ -10,92 +10,69 @@ using System.Windows.Forms;
 
 namespace Population
 {
+    public delegate void SolidControlChangeHandler(bool MembersSolid);
+    public delegate void SolidAllControlChangeHandler(bool AllMembersSolid);
+    public delegate void OpacityChangeHandler(int Opacity);
+    public delegate void OpacityAllHandler(bool ApplyOpacityToAll);
+    public delegate void RuningStatusChangeHandler(bool Running);
+
     public partial class ControlPanel : Form
     {
-        public event EventHandler chkSolidChangedEvent;
-        public event EventHandler chkSolidAllChangedEvent;
-        public event EventHandler tbOpacityValueChangedEvent;
-        public event EventHandler chkOpacityAllChangedEvent;
-        public event EventHandler runStatusChangeEvent;
+        public event SolidControlChangeHandler chkSolidChangedEvent;
+        public event SolidAllControlChangeHandler chkSolidAllChangedEvent;
+        public event OpacityChangeHandler tbOpacityValueChangedEvent;
+        public event OpacityAllHandler chkOpacityAllChangedEvent;
+        public event RuningStatusChangeHandler runStatusChangeEvent;
         public event EventHandler clearButtonClickEvent;
         public event EventHandler exitButtonClickEvent;
 
-        private bool vchkSolidVal;
-        private bool vchkSolidAllVal;
-        private int vtbOpacityVal;
-        private bool vchkOpacityAllVal;
-        private bool vRunningVal;
-
-        public bool RunStatus
-        {
-            get { return vRunningVal; }
-        }
-
-        public int MemberOpacityValue
-        {
-            get { return vtbOpacityVal; }
-        }
-
-        public bool ApplyOpacityToAll
-        {
-            get { return vchkOpacityAllVal; }
-        }
-
-        public bool MembersSolid
-        {
-            get { return vchkSolidVal; }
-        }
-
-        public bool AllMembersSolid
-        {
-            get { return vchkSolidAllVal; }
-        }
-
-        public ControlPanel()
+        public ControlPanel()   
         {
             InitializeComponent();
         }
 
         protected void chkSolid_CheckedChanged(object sender, EventArgs e)
         {
-            vchkSolidVal = this.chkSolid.Checked; // Make value available outside.
-            EventHandler handler = chkSolidChangedEvent;
+            SolidControlChangeHandler handler = chkSolidChangedEvent;
             if (handler != null)
-                handler(this, e);
+                handler(chkSolid.Checked);
 
             this.chkSolidAll.Enabled = this.chkSolid.Checked;
         }
 
         private void chkSolidAll_CheckedChanged(object sender, EventArgs e)
         {
-            vchkSolidAllVal = this.chkSolidAll.Checked; // Make value availble.
-            EventHandler handler = chkSolidAllChangedEvent;
+            SolidAllControlChangeHandler handler = chkSolidAllChangedEvent;
             if (handler != null)
-                handler(this, e);
+                handler(chkSolidAll.Checked);
         }
 
         private void tbOpacity_ValueChanged(object sender, EventArgs e)
         {
-            vtbOpacityVal = this.tbOpacity.Value;
-            EventHandler handler = tbOpacityValueChangedEvent;
+            OpacityChangeHandler handler = tbOpacityValueChangedEvent;
             if (handler != null)
-                handler(this, e);
+                handler(tbOpacity.Value);
+        }
+
+        private void chkOpaqueAll_CheckedChanged(object sender, EventArgs e)
+        {
+            OpacityAllHandler handler = chkOpacityAllChangedEvent;
+            if (handler != null)
+                handler(chkOpaqueAll.Checked);
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            vRunningVal = true;
-            EventHandler handler = runStatusChangeEvent;
+            RuningStatusChangeHandler handler = runStatusChangeEvent;
             if (handler != null)
-                handler(this, e);
+                handler(true);
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            vRunningVal = false;
-            EventHandler handler = runStatusChangeEvent;
+            RuningStatusChangeHandler handler = runStatusChangeEvent;
             if (handler != null)
-                handler(this, e);
+                handler(false);
         }
 
         private void btnClear_Click(object sender, EventArgs e)
@@ -112,12 +89,6 @@ namespace Population
                 handler(this, e);
         }
 
-        private void chkOpaqueAll_CheckedChanged(object sender, EventArgs e)
-        {
-            vchkOpacityAllVal = chkOpaqueAll.Checked;
-            EventHandler handler = chkOpacityAllChangedEvent;
-            if (handler != null)
-                handler(this, e);
-        }
+
     }
 }

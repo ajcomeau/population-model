@@ -73,9 +73,10 @@ namespace Population
             settingsPanel.exitButtonClickEvent += SettingsPanel_exitButtonClickEvent;
         }
 
-        private void SettingsPanel_chkOpacityAllChangedEvent(object sender, EventArgs e)
+
+        private void SettingsPanel_chkOpacityAllChangedEvent(bool ApplyOpacityToAll)
         {
-            this.vOpacityAll = settingsPanel.ApplyOpacityToAll;
+            this.vOpacityAll = ApplyOpacityToAll;
         }
 
         private void SettingsPanel_exitButtonClickEvent(object sender, EventArgs e)
@@ -88,24 +89,24 @@ namespace Population
             throw new NotImplementedException();
         }
 
-        private void SettingsPanel_runStatusChangeEvent(object sender, EventArgs e)
+        private void SettingsPanel_runStatusChangeEvent(bool RunStatus)
         {
-            this.vRunning = settingsPanel.RunStatus;
+            this.vRunning = RunStatus;
         }
 
-        private void SettingsPanel_tbOpacityValueChangedEvent(object sender, EventArgs e)
+        private void SettingsPanel_tbOpacityValueChangedEvent(int MemberOpacityValue)
         {
-            this.vOpacity = settingsPanel.MemberOpacityValue;
+            this.vOpacity = MemberOpacityValue;
         }
 
-        private void SettingsPanel_chkSolidAllChangedEvent(object sender, EventArgs e)
+        private void SettingsPanel_chkSolidAllChangedEvent(bool AllMembersSolid)
         {
-            this.vSolidAllMembers = settingsPanel.AllMembersSolid;
+            this.vSolidAllMembers = AllMembersSolid;
         }
 
-        private void SettingsPanel_chkSolidChangedEvent(object sender, EventArgs e)
+        private void SettingsPanel_chkSolidChangedEvent(bool MembersSolid)
         {
-            this.vSolidMembers = settingsPanel.MembersSolid;
+            this.vSolidMembers = MembersSolid;
         }
 
         public Ellipse CreateEllipseObject()
