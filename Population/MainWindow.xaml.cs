@@ -48,7 +48,36 @@ namespace Population
         private void NewMemberClock_Tick(object sender, EventArgs e)
         {
             // Generate a new member and add it to the canvas.
-            FieldCanvas.Children.Add(members.CreateEllipseObject());
+            FieldCanvas.Children.Add(CreateEllipseObject());
+        }
+
+        public Ellipse CreateEllipseObject()
+        {
+            // Creates a new Ellipse object for addition to the field collection.
+
+            // Random values for direction and ellipse color.
+            Random directionGen = new Random(System.DateTime.Now.Millisecond);
+            Random colorGen = new Random(System.DateTime.Now.Millisecond);
+            string colorHex = colorGen.Next(1048576, 16777215).ToString("X");
+
+            // Create new ellipse and place it in the top left of the canvas.
+            Ellipse newMember = new Ellipse();
+            newMember.Opacity = 1;
+            newMember.Width = 50;
+            newMember.Height = 50;
+            Canvas.SetLeft(newMember, 1d);
+            Canvas.SetTop(newMember, 1d);
+            newMember.Fill = new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"),
+                (Color)ColorConverter.ConvertFromString("#" + colorHex));
+
+            // Add MemberStats object to ellipse tag to store directional and health values.
+            MemberStats MemberVitals = new MemberStats(50, directionGen.Next(1, 5), directionGen.Next(1, 5));
+            newMember.Tag = MemberVitals;
+
+            // Add ToolTip to ellipse with health stat.
+            newMember.ToolTip = "Health: " + MemberVitals.HealthPoints.ToString();
+
+            return newMember;
         }
 
         private void PrimaryClock_Tick(object sender, EventArgs e)

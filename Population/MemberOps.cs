@@ -13,7 +13,7 @@ namespace Population
     class MemberOps
     {
         // Enumeration for canvas edges.
-        public enum EdgeContact { Left, Top, Right, Bottom, None};
+        public enum ObjectContact { Left, Top, Right, Bottom, None};
 
         // Class requires a reference to the canvas for current height and width.
         private Canvas workingCanvas;
@@ -25,6 +25,9 @@ namespace Population
         private int vOpacity;
         private bool vOpacityAll;
         private bool vRunning;
+
+        // Collision count
+        private int collisions;
 
         // Properties for settings panel values.
         public bool SolidMembers
@@ -73,7 +76,6 @@ namespace Population
             settingsPanel.exitButtonClickEvent += SettingsPanel_exitButtonClickEvent;
         }
 
-
         private void SettingsPanel_chkOpacityAllChangedEvent(bool ApplyOpacityToAll)
         {
             this.vOpacityAll = ApplyOpacityToAll;
@@ -109,42 +111,13 @@ namespace Population
             this.vSolidMembers = MembersSolid;
         }
 
-        public Ellipse CreateEllipseObject()
-        {
-            // Creates a new Ellipse object for addition to the field collection.
-
-            // Random values for direction and ellipse color.
-            Random directionGen = new Random(System.DateTime.Now.Millisecond);
-            Random colorGen = new Random(System.DateTime.Now.Millisecond);
-            string colorHex = colorGen.Next(1048576, 16777215).ToString("X");
-
-            // Create new ellipse and place it in the top left of the canvas.
-            Ellipse newMember = new Ellipse();
-            newMember.Opacity = 1;
-            newMember.Width = 50;
-            newMember.Height = 50;
-            Canvas.SetLeft(newMember, 1d);
-            Canvas.SetTop(newMember, 1d);
-            newMember.Fill = new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"), 
-                (Color)ColorConverter.ConvertFromString("#" + colorHex));
-
-            // Add MemberStats object to ellipse tag to store directional and health values.
-            MemberStats MemberVitals = new MemberStats(50, directionGen.Next(1,5), directionGen.Next(1, 5));                        
-            newMember.Tag = MemberVitals;
-
-            // Add ToolTip to ellipse with health stat.
-            newMember.ToolTip = "Health: " + MemberVitals.HealthPoints.ToString();
-
-            return newMember;
-        }
-
-        public void MoveMember(Ellipse MemberObject)
+        public void MoveMember(Shape MemberObject)
         {
             // Get vital stats dictionary
             Type t = MemberObject.Tag.GetType();
             MemberStats memberVitals;
             double leftMargin, topMargin;
-            EdgeContact contactEdge;
+            ObjectContact contactEdge;
 
             // Verify type of object tag.
             if (t == typeof(MemberStats)){
@@ -156,36 +129,85 @@ namespace Population
                 // Determine if the object has come into contact with one of the edges.
                 // If it has, change direction.
                 contactEdge = EdgeDetect(MemberObject);
-                if (contactEdge != EdgeContact.None)
+                if (contactEdge != ObjectContact.None)
                 {
                     MemberBounce(MemberObject, contactEdge);
                 }
+                ScanForCollisions(MemberObject);
             }
         }
 
-        private void MemberBounce(Ellipse memberObject, EdgeContact ContactEdge)
+        public void ScanForCollisions(Shape MovingShape)
         {
-            MemberStats memberVitals = (MemberStats)memberObject.Tag;
-
-            // Determine which edge of the object impacted and change its direction as needed.
-            switch(ContactEdge)
+            foreach (UIElement uiObject in workingCanvas.Children)
             {
-                case EdgeContact.Left:
-                    memberVitals.XDirect = Math.Abs(memberVitals.XDirect);
-                    break;
-                case EdgeContact.Right:
-                    memberVitals.XDirect = Math.Abs(memberVitals.XDirect) * (-1);
-                    break;
-                case EdgeContact.Top:
-                    memberVitals.YDirect = Math.Abs(memberVitals.YDirect);
-                    break;
-                case EdgeContact.Bottom:
-                    memberVitals.YDirect = Math.Abs(memberVitals.YDirect) * (-1);
-                    break;
+                if(uiObject != MovingShape)
+                { 
+                    Type t = uiObject.GetType();
+                    ObjectContact collideDetect = ObjectContact.None;
+                
+                    if (t.UnderlyingSystemType.BaseType == typeof(Shape))
+                    {
+                        Shape StaticShape = (Shape)uiObject;
+                        collideDetect = CollisionDetect(MovingShape, StaticShape);
+
+                        if (collideDetect != ObjectContact.None)
+                        {
+                            MemberBounce(MovingShape, collideDetect);
+                        }                    
+                    }
+                }
+
             }
         }
 
-        public EdgeContact EdgeDetect(Ellipse MemberObject)
+        public ObjectContact CollisionDetect(Shape MovingShape, Shape StaticShape)
+        {
+            bool collision;
+
+            Rect MovingShapeRect = new Rect(MovingShape.Margin.Left, MovingShape.Margin.Top, MovingShape.ActualWidth, MovingShape.ActualHeight);
+            Rect StaticShapeRect = new Rect(StaticShape.Margin.Left, StaticShape.Margin.Top, StaticShape.ActualWidth, StaticShape.ActualHeight);
+            ObjectContact firstContact = ObjectContact.None;
+            
+            collision = (MovingShapeRect.IntersectsWith(StaticShapeRect));
+
+            if (collision)
+            {
+
+                // Left side contact
+                if (MovingShapeRect.Left <= StaticShapeRect.Right)
+                {
+                    firstContact = ObjectContact.Left;
+                    MovingShape.Margin = new Thickness(MovingShape.Margin.Left + 1, MovingShape.Margin.Top, 0, 0);
+                }
+
+                // Top contact
+                if (firstContact == ObjectContact.None && MovingShapeRect.Top <= StaticShapeRect.Bottom)
+                {
+                    firstContact = ObjectContact.Top;
+                    MovingShape.Margin = new Thickness(MovingShape.Margin.Left, MovingShape.Margin.Top + 1, 0, 0);
+                }
+
+                // Right side contact
+                if (firstContact == ObjectContact.None && (MovingShapeRect.Right >= StaticShapeRect.Left))
+                {
+                    firstContact = ObjectContact.Right;
+                    MovingShape.Margin = new Thickness((StaticShapeRect.Left - MovingShape.Width - 1), MovingShape.Margin.Top, 0, 0);
+                }
+
+                // Bottom contact
+                if (firstContact == ObjectContact.None && (MovingShapeRect.Bottom >= StaticShapeRect.Top))
+                {
+                    firstContact = ObjectContact.Bottom;
+                    MovingShape.Margin = new Thickness(MovingShape.Margin.Left, (StaticShape.Height - MovingShape.Height - 1), 0, 0);
+                }
+            }
+
+            return firstContact;
+        }
+
+
+        public ObjectContact EdgeDetect(Shape MemberObject)
         {
             // Get the margin values for the object.
             Thickness memberBorders = MemberObject.Margin;
@@ -195,37 +217,59 @@ namespace Population
             double memberBottom = (memberBorders.Top + MemberObject.Height);
             MemberStats MemberVitals = (MemberStats)MemberObject.Tag;
 
-            EdgeContact firstContact = EdgeContact.None;
+            ObjectContact firstContact = ObjectContact.None;
 
             // Left side contact
             if (memberBorders.Left <= 0)
             { 
-                firstContact = EdgeContact.Left;
+                firstContact = ObjectContact.Left;
                 MemberObject.Margin = new Thickness(1, memberTop, 0, 0);             
             }
 
             // Top contact
-            if (firstContact == EdgeContact.None && memberBorders.Top <= 0)
+            if (firstContact == ObjectContact.None && memberBorders.Top <= 0)
             {
-                firstContact = EdgeContact.Top;
+                firstContact = ObjectContact.Top;
                 MemberObject.Margin = new Thickness(memberLeft, 1, 0, 0);
             }
 
             // Right side contact
-            if (firstContact == EdgeContact.None && (memberRight >= workingCanvas.ActualWidth))
+            if (firstContact == ObjectContact.None && (memberRight >= workingCanvas.ActualWidth))
             { 
-                firstContact = EdgeContact.Right;
+                firstContact = ObjectContact.Right;
                 MemberObject.Margin = new Thickness((workingCanvas.ActualWidth - MemberObject.Width - 1), memberTop, 0, 0);
             }
 
             // Bottom contact
-            if (firstContact == EdgeContact.None && (memberBottom >= workingCanvas.ActualHeight))
+            if (firstContact == ObjectContact.None && (memberBottom >= workingCanvas.ActualHeight))
             {
-                firstContact = EdgeContact.Bottom;
+                firstContact = ObjectContact.Bottom;
                 MemberObject.Margin = new Thickness(memberLeft, (workingCanvas.ActualHeight - MemberObject.Height - 1), 0, 0);
             }
 
             return firstContact;
+        }
+
+        private void MemberBounce(Shape memberObject, ObjectContact ContactEdge)
+        {
+            MemberStats memberVitals = (MemberStats)memberObject.Tag;
+
+            // Determine which edge of the object impacted and change its direction as needed.
+            switch (ContactEdge)
+            {
+                case ObjectContact.Left:
+                    memberVitals.XDirect = Math.Abs(memberVitals.XDirect);
+                    break;
+                case ObjectContact.Right:
+                    memberVitals.XDirect = Math.Abs(memberVitals.XDirect) * (-1);
+                    break;
+                case ObjectContact.Top:
+                    memberVitals.YDirect = Math.Abs(memberVitals.YDirect);
+                    break;
+                case ObjectContact.Bottom:
+                    memberVitals.YDirect = Math.Abs(memberVitals.YDirect) * (-1);
+                    break;
+            }
         }
     }
 }
