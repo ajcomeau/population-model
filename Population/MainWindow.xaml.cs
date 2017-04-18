@@ -62,22 +62,20 @@ namespace Population
             // Random values for direction and ellipse color.
             Random directionGen = new Random(System.DateTime.Now.Millisecond);
             Random colorGen = new Random(System.DateTime.Now.Millisecond);
-            string colorHex = colorGen.Next(1048576, 16777215).ToString("X");
 
             // Create new ellipse and place it in the top left of the canvas.
             Ellipse newMember = new Ellipse();
             newMember.Opacity = 1;
             newMember.Width = 40;
             newMember.Height = 40;
+            newMember.Name = "z" + System.DateTime.Now.Ticks.ToString();
             Canvas.SetLeft(newMember, 1d);
             Canvas.SetTop(newMember, 1d);
-            newMember.Fill = new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"),
-                (Color)ColorConverter.ConvertFromString("#" + colorHex));
 
             // Add MemberStats object to ellipse tag to store directional and health values.
-            MemberStats MemberVitals = new MemberStats(50, directionGen.Next(1, 5), directionGen.Next(1, 5));
+            MemberStats MemberVitals = new MemberStats(255, directionGen.Next(1, 5), directionGen.Next(1, 5));
             newMember.Tag = MemberVitals;
-
+            newMember.Fill = new RadialGradientBrush(Color.FromRgb(255, 255, 255), members.GenerateMemberColor(MemberVitals.HealthPoints));
             // Add ToolTip to ellipse with health stat.
             newMember.ToolTip = "Health: " + MemberVitals.HealthPoints.ToString();
 
@@ -94,6 +92,25 @@ namespace Population
             // When the primary timer fires, iterate through the canvas collection
             // and move each ellipse one step.
 
+            // Remove members with no health points left.
+            for (int idx = FieldCanvas.Children.Count - 1; idx >= 0; idx--)
+            {
+                UIElement uiObject = FieldCanvas.Children[idx];
+
+                Type t = uiObject.GetType();
+
+                if (t == typeof(Ellipse))
+                {
+                    Ellipse currEllipse = (Ellipse)uiObject;
+                    MemberStats stats = (MemberStats)currEllipse.Tag;
+                    if(stats.HealthPoints <= 0)
+                    {
+                        FieldCanvas.Children.RemoveAt(idx);
+                    }
+                }
+            }
+
+            // Iterate through and move each member.
             foreach (UIElement uiObject in FieldCanvas.Children)
             {
                 Type t = uiObject.GetType();
@@ -101,8 +118,7 @@ namespace Population
                 if(t == typeof(Ellipse))
                 {
                     Ellipse currEllipse = (Ellipse)uiObject;
-                    members.MoveMember(currEllipse);
-
+                        members.MoveMember(currEllipse);                        
                 }
             }
         }

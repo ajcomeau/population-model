@@ -15,9 +15,13 @@ namespace Population
         // Enumeration for canvas edges.
         public enum ObjectContact { Left, TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, None};
 
-        // Max number of points to move.
-        public const int MAX_JUMP = 5;
-        public const int BOUNCE_DIST = 3;
+        // Program constants
+        public const int MAX_JUMP = 5;              // Maximum distance to travel in one step.
+        public const int BOUNCE_DIST = 3;           // Amount of recoil when hitting something.
+        public const int COLLISION_MEMBER = -15;    // Health affect for hitting another member.
+        public const int COLLISION_WALL = 50;       // Health affect for touching wall.
+        public const int HEALTH_PER_STEP = 1;       // Health affect for each step.
+        public const int BALL_SIZE = 40;            // Ball radius
 
         // Class requires a reference to the canvas for current height and width.
         private Canvas workingCanvas;
@@ -124,6 +128,10 @@ namespace Population
             if (t == typeof(MemberStats)){
                 memberVitals = (MemberStats)MemberObject.Tag;
 
+                // Update color based on health.
+                MemberObject.Fill = new RadialGradientBrush(Color.FromRgb(255, 255, 255), GenerateMemberColor(memberVitals.HealthPoints));
+
+                // Update solid setting.
                 if (!memberVitals.Solid && AllMembersSolid)
                 {
                     memberVitals.Solid = true;
@@ -141,6 +149,7 @@ namespace Population
                 contactEdge = EdgeDetect(MemberObject);
                 if (contactEdge != ObjectContact.None)
                 {
+                    memberVitals.HealthPoints += COLLISION_WALL;
                     MemberBounce(MemberObject, contactEdge);
                 }
             }
@@ -150,6 +159,7 @@ namespace Population
         {
 
             ObjectContact collideDetect = ObjectContact.None;
+            MemberStats memberVitals = (MemberStats)MovingShape.Tag;
 
             foreach (UIElement uiObject in workingCanvas.Children)
             {
@@ -168,6 +178,7 @@ namespace Population
                         // If there is a collsion, bounce ...
                         if (collideDetect != ObjectContact.None)
                         {
+                            memberVitals.HealthPoints += COLLISION_MEMBER;
                             MemberBounce(MovingShape, StaticShape, collideDetect);
                         }
                     }
@@ -366,6 +377,52 @@ namespace Population
                     break;
             }
 
+        }
+
+        public Color GenerateMemberColor(int HealthPoints)
+        {
+            Color returnValue;
+            int redComponent = 0;
+            int blueComponent = 0;
+            int greenComponent = 0;
+            int remaining = HealthPoints;
+
+            // THERE'S PROBABLY A SHORTER WAY TO DO THIS INVOLVING A WHILE LOOP OR SOMETHING (hint, hint)
+            // Subtract 255 at a time from the health points. Apply the points
+            // first to the Blue, then Green, then Red.
+            // This will make the color fade from White to Yellow to Red to Black.
+
+            if((remaining / 255) > 2)
+            {
+                redComponent = 255;
+                greenComponent = 255;
+                blueComponent = 230;
+                remaining = 0;
+            }
+
+            if(remaining > 510)
+            {
+                blueComponent = (remaining - 510);
+                remaining -= blueComponent;
+                if (blueComponent > 230)
+                    blueComponent = 230;
+            }
+
+            if(remaining > 255)
+            {
+                greenComponent = (remaining - 255);
+                remaining -= greenComponent;
+            }
+
+            if(remaining > 0)
+            {
+                redComponent = remaining;
+                remaining -= redComponent;
+            }
+
+            returnValue = Color.FromRgb((byte)redComponent, (byte)greenComponent, (byte)blueComponent);
+
+            return returnValue;
         }
     }
 }
