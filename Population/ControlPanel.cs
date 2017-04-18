@@ -10,6 +10,7 @@ using System.Windows.Forms;
 
 namespace Population
 {
+    // Delegates for data settings.
     public delegate void SolidControlChangeHandler(bool MembersSolid);
     public delegate void SolidAllControlChangeHandler(bool AllMembersSolid);
     public delegate void OpacityChangeHandler(int Opacity);
@@ -18,6 +19,8 @@ namespace Population
 
     public partial class ControlPanel : Form
     {
+        // Public events to be raised on setting changes.
+
         public event SolidControlChangeHandler chkSolidChangedEvent;
         public event SolidAllControlChangeHandler chkSolidAllChangedEvent;
         public event OpacityChangeHandler tbOpacityValueChangedEvent;
@@ -33,20 +36,27 @@ namespace Population
 
         protected void chkSolid_CheckedChanged(object sender, EventArgs e)
         {
+            // Event for change of solid setting.
+
             SolidControlChangeHandler handler = chkSolidChangedEvent;
             if (handler != null)
                 handler(chkSolid.Checked);
 
-            if(!this.chkSolid.Checked)
+            // If Solid is unchecked, uncheck the SolidAll setting.
+
+            if (!this.chkSolid.Checked)
             {
                 this.chkSolidAll.Checked = false;
             }
+
+            // Disable SolidAll if Solid is unchecked.
 
             this.chkSolidAll.Enabled = this.chkSolid.Checked;
         }
 
         private void chkSolidAll_CheckedChanged(object sender, EventArgs e)
         {
+            // Event for change of SolidAll property.
             SolidAllControlChangeHandler handler = chkSolidAllChangedEvent;
             if (handler != null)
                 handler(chkSolidAll.Checked);
@@ -54,6 +64,7 @@ namespace Population
 
         private void tbOpacity_ValueChanged(object sender, EventArgs e)
         {
+            // Event for change of opacity slider property.
             OpacityChangeHandler handler = tbOpacityValueChangedEvent;
             if (handler != null)
                 handler(tbOpacity.Value);
@@ -61,6 +72,7 @@ namespace Population
 
         private void chkOpaqueAll_CheckedChanged(object sender, EventArgs e)
         {
+            // Event for change of Opacity on All checkbox.
             OpacityAllHandler handler = chkOpacityAllChangedEvent;
             if (handler != null)
                 handler(chkOpaqueAll.Checked);
@@ -68,6 +80,7 @@ namespace Population
 
         private void btnStart_Click(object sender, EventArgs e)
         {
+            // Start process event.
             RuningStatusChangeHandler handler = runStatusChangeEvent;
             if (handler != null)
                 handler(true);
@@ -75,6 +88,7 @@ namespace Population
 
         private void btnStop_Click(object sender, EventArgs e)
         {
+            // Stop process event.
             RuningStatusChangeHandler handler = runStatusChangeEvent;
             if (handler != null)
                 handler(false);
@@ -82,6 +96,7 @@ namespace Population
 
         private void btnClear_Click(object sender, EventArgs e)
         {
+            // Clear process event.
             EventHandler handler = clearButtonClickEvent;
             if (handler != null)
                 handler(this, e);
@@ -89,6 +104,7 @@ namespace Population
 
         private void btnExit_Click(object sender, EventArgs e)
         {
+            // Exit button event.
             EventHandler handler = exitButtonClickEvent;
             if (handler != null)
                 handler(this, e);
