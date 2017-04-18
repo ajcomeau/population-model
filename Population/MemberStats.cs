@@ -11,6 +11,7 @@ namespace Population
         private int health;
         private int xDir;
         private int yDir;
+        private bool solid;
 
         public MemberStats(int Health, int XDirect, int YDirect)
         {
@@ -52,6 +53,18 @@ namespace Population
             set
             {
                 yDir = value;
+            }
+        }
+
+        public bool Solid
+        {
+            get
+            {
+                return solid;
+            }
+            set
+            {
+                solid = value;
             }
         }
 

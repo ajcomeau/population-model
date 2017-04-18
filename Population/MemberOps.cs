@@ -13,7 +13,10 @@ namespace Population
     class MemberOps
     {
         // Enumeration for canvas edges.
-        public enum ObjectContact { Left, Top, Right, Bottom, None};
+        public enum ObjectContact { Left, TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, None};
+
+        // Max number of points to move.
+        public const int MAX_JUMP = 5;
 
         // Class requires a reference to the canvas for current height and width.
         private Canvas workingCanvas;
@@ -126,26 +129,30 @@ namespace Population
                 leftMargin = MemberObject.Margin.Left + memberVitals.XDirect;
                 topMargin = MemberObject.Margin.Top + memberVitals.YDirect;
                 MemberObject.Margin = new Thickness(leftMargin, topMargin, 0, 0);
-                // Determine if the object has come into contact with one of the edges.
+                // Determine if the object has come into contact with one of the edges or another object.
                 // If it has, change direction.
+
+                ScanForCollisions(MemberObject);
+
                 contactEdge = EdgeDetect(MemberObject);
                 if (contactEdge != ObjectContact.None)
                 {
                     MemberBounce(MemberObject, contactEdge);
                 }
-                ScanForCollisions(MemberObject);
             }
         }
 
         public void ScanForCollisions(Shape MovingShape)
         {
+
+            ObjectContact collideDetect = ObjectContact.None;
+
             foreach (UIElement uiObject in workingCanvas.Children)
             {
                 if(uiObject != MovingShape)
                 { 
                     Type t = uiObject.GetType();
-                    ObjectContact collideDetect = ObjectContact.None;
-                
+
                     if (t.UnderlyingSystemType.BaseType == typeof(Shape))
                     {
                         Shape StaticShape = (Shape)uiObject;
@@ -153,11 +160,10 @@ namespace Population
 
                         if (collideDetect != ObjectContact.None)
                         {
-                            MemberBounce(MovingShape, collideDetect);
-                        }                    
+                            MemberBounce(MovingShape, StaticShape, collideDetect);
+                        }
                     }
                 }
-
             }
         }
 
@@ -165,45 +171,64 @@ namespace Population
         {
             bool collision;
 
-            Rect MovingShapeRect = new Rect(MovingShape.Margin.Left, MovingShape.Margin.Top, MovingShape.ActualWidth, MovingShape.ActualHeight);
-            Rect StaticShapeRect = new Rect(StaticShape.Margin.Left, StaticShape.Margin.Top, StaticShape.ActualWidth, StaticShape.ActualHeight);
-            ObjectContact firstContact = ObjectContact.None;
+            Rect MovingShapeRect = new Rect(MovingShape.Margin.Left, MovingShape.Margin.Top, MovingShape.Width, MovingShape.Height);
+            Rect StaticShapeRect = new Rect(StaticShape.Margin.Left, StaticShape.Margin.Top, StaticShape.Width, StaticShape.Height);
+            ObjectContact contactPoint = ObjectContact.None;
             
             collision = (MovingShapeRect.IntersectsWith(StaticShapeRect));
 
             if (collision)
             {
-
-                // Left side contact
-                if (MovingShapeRect.Left <= StaticShapeRect.Right)
+                if (StaticShapeRect.Contains(MovingShapeRect.TopLeft) || MovingShapeRect.Contains(StaticShapeRect.BottomRight))
                 {
-                    firstContact = ObjectContact.Left;
-                    MovingShape.Margin = new Thickness(MovingShape.Margin.Left + 1, MovingShape.Margin.Top, 0, 0);
+                    contactPoint = ObjectContact.TopLeft;
                 }
 
-                // Top contact
-                if (firstContact == ObjectContact.None && MovingShapeRect.Top <= StaticShapeRect.Bottom)
+                if ((contactPoint == ObjectContact.None) && 
+                    (StaticShapeRect.Contains(MovingShapeRect.TopRight) || MovingShapeRect.Contains(StaticShapeRect.BottomLeft)))
                 {
-                    firstContact = ObjectContact.Top;
-                    MovingShape.Margin = new Thickness(MovingShape.Margin.Left, MovingShape.Margin.Top + 1, 0, 0);
+                    contactPoint = ObjectContact.TopRight;
                 }
 
-                // Right side contact
-                if (firstContact == ObjectContact.None && (MovingShapeRect.Right >= StaticShapeRect.Left))
+                if ((contactPoint == ObjectContact.None) && 
+                    (StaticShapeRect.Contains(MovingShapeRect.BottomRight) || MovingShapeRect.Contains(StaticShapeRect.TopLeft)))
                 {
-                    firstContact = ObjectContact.Right;
-                    MovingShape.Margin = new Thickness((StaticShapeRect.Left - MovingShape.Width - 1), MovingShape.Margin.Top, 0, 0);
+                    contactPoint = ObjectContact.BottomRight;
                 }
 
-                // Bottom contact
-                if (firstContact == ObjectContact.None && (MovingShapeRect.Bottom >= StaticShapeRect.Top))
+                if ((contactPoint == ObjectContact.None) && 
+                    (StaticShapeRect.Contains(MovingShapeRect.BottomLeft) || MovingShapeRect.Contains(StaticShapeRect.TopRight)))
                 {
-                    firstContact = ObjectContact.Bottom;
-                    MovingShape.Margin = new Thickness(MovingShape.Margin.Left, (StaticShape.Height - MovingShape.Height - 1), 0, 0);
+                    contactPoint = ObjectContact.BottomLeft;
                 }
+
+                if ((contactPoint == ObjectContact.None) && 
+                    (MovingShapeRect.Top <= StaticShapeRect.Bottom && MovingShapeRect.Top > StaticShapeRect.Top))
+                {
+                    contactPoint = ObjectContact.Top;
+                }
+
+                if ((contactPoint == ObjectContact.None) && 
+                    (MovingShapeRect.Bottom >= StaticShapeRect.Top && MovingShapeRect.Bottom < StaticShapeRect.Bottom))
+                {
+                    contactPoint = ObjectContact.Bottom;
+                }
+
+                if ((contactPoint == ObjectContact.None) && 
+                    (MovingShapeRect.Left <= StaticShapeRect.Right && MovingShapeRect.Left > StaticShapeRect.Left))
+                {
+                    contactPoint = ObjectContact.Left;
+                }
+
+                if ((contactPoint == ObjectContact.None) && 
+                    (MovingShapeRect.Right >= StaticShapeRect.Left && MovingShapeRect.Right > StaticShapeRect.Right))
+                {
+                    contactPoint = ObjectContact.Right;
+                }
+
             }
 
-            return firstContact;
+            return contactPoint;
         }
 
 
@@ -270,6 +295,70 @@ namespace Population
                     memberVitals.YDirect = Math.Abs(memberVitals.YDirect) * (-1);
                     break;
             }
+        }
+
+        private void MemberBounce(Shape movingObject, Shape staticObject, ObjectContact ContactEdge)
+        {
+            MemberStats movingVitals = (MemberStats)movingObject.Tag;
+            MemberStats staticVitals = (MemberStats)staticObject.Tag;
+
+            // Determine which edge of the object impacted and change its direction or speed as needed.
+
+            if (ContactEdge == ObjectContact.TopLeft)
+            {
+                movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
+                movingVitals.YDirect = (Math.Abs(movingVitals.YDirect) * -1);
+            }
+
+            if (ContactEdge == ObjectContact.TopRight)
+            {
+                movingVitals.XDirect = (Math.Abs(movingVitals.XDirect) * -1);
+                movingVitals.YDirect = (Math.Abs(movingVitals.YDirect) * -1);
+            }
+
+            if (ContactEdge == ObjectContact.BottomLeft)
+            {
+                movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
+                movingVitals.YDirect = Math.Abs(movingVitals.YDirect);
+            }
+
+            if (ContactEdge == ObjectContact.BottomRight)
+            {
+                movingVitals.XDirect = (Math.Abs(movingVitals.XDirect) * -1);
+                movingVitals.YDirect = Math.Abs(movingVitals.YDirect);
+            }
+
+            //if (ContactEdge == ObjectContact.Left || ContactEdge == ObjectContact.Right)
+            //{
+            //    if (Math.Sign(staticVitals.XDirect) == Math.Sign(movingVitals.XDirect))
+            //    {
+            //        if (movingVitals.XDirect > 0)
+            //            staticVitals.XDirect += 1;
+            //        else
+            //            staticVitals.XDirect -= 1;
+            //    }
+            //    else
+            //    {
+            //        staticVitals.XDirect = staticVitals.XDirect * -1;
+            //        movingVitals.XDirect = movingVitals.XDirect * -1;
+            //    }
+            //}
+            //else
+            //{
+            //    if (Math.Sign(staticVitals.YDirect) == Math.Sign(movingVitals.YDirect))
+            //    {
+            //        if (movingVitals.YDirect > 0)
+            //            staticVitals.YDirect += 1;
+            //        else
+            //            staticVitals.YDirect -= 1;
+
+            //    }
+            //    else
+            //    {
+            //        staticVitals.YDirect = staticVitals.YDirect * -1;
+            //        movingVitals.YDirect = movingVitals.YDirect * -1;
+            //    }
+            //}
         }
     }
 }

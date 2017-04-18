@@ -22,7 +22,8 @@ namespace Population
     public partial class MainWindow : Window
     {
         MemberOps members;
-
+        int memberCount = 0;
+        DispatcherTimer NewMemberClock;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,7 +38,7 @@ namespace Population
             PrimaryClock.Start();
 
             // Create timer to generate new member every few seconds.
-            DispatcherTimer NewMemberClock = new DispatcherTimer();
+            NewMemberClock = new DispatcherTimer();
             NewMemberClock.Tick += new EventHandler(NewMemberClock_Tick);
             NewMemberClock.Interval = new TimeSpan(0, 0, 0, 3);
             NewMemberClock.Start();
@@ -49,6 +50,9 @@ namespace Population
         {
             // Generate a new member and add it to the canvas.
             FieldCanvas.Children.Add(CreateEllipseObject());
+            memberCount++;
+            //if (memberCount > 1)
+            //    NewMemberClock.Stop();
         }
 
         public Ellipse CreateEllipseObject()
@@ -63,8 +67,8 @@ namespace Population
             // Create new ellipse and place it in the top left of the canvas.
             Ellipse newMember = new Ellipse();
             newMember.Opacity = 1;
-            newMember.Width = 50;
-            newMember.Height = 50;
+            newMember.Width = 40;
+            newMember.Height = 40;
             Canvas.SetLeft(newMember, 1d);
             Canvas.SetTop(newMember, 1d);
             newMember.Fill = new RadialGradientBrush((Color)ColorConverter.ConvertFromString("#FFFFFF"),
@@ -76,6 +80,10 @@ namespace Population
 
             // Add ToolTip to ellipse with health stat.
             newMember.ToolTip = "Health: " + MemberVitals.HealthPoints.ToString();
+
+            // If the Settings panel requires solid members, make it solid.
+            if (members.SolidMembers)
+                MemberVitals.Solid = true;
 
             return newMember;
         }
