@@ -37,6 +37,11 @@ namespace Population
             if (handler != null)
                 handler(chkSolid.Checked);
 
+            if(!this.chkSolid.Checked)
+            {
+                this.chkSolidAll.Checked = false;
+            }
+
             this.chkSolidAll.Enabled = this.chkSolid.Checked;
         }
 

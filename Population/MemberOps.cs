@@ -29,8 +29,6 @@ namespace Population
         private bool vOpacityAll;
         private bool vRunning;
 
-        // Collision count
-        private int collisions;
 
         // Properties for settings panel values.
         public bool SolidMembers
@@ -40,7 +38,7 @@ namespace Population
 
         public bool AllMembersSolid
         {
-            get { return vSolidMembers; }
+            get { return vSolidAllMembers; }
         }
 
         public int MemberOpacity
@@ -125,6 +123,12 @@ namespace Population
             // Verify type of object tag.
             if (t == typeof(MemberStats)){
                 memberVitals = (MemberStats)MemberObject.Tag;
+
+                if (!memberVitals.Solid && AllMembersSolid)
+                {
+                    memberVitals.Solid = true;
+                }
+
                 // Determine next position by adding information from stats object to current position.
                 leftMargin = MemberObject.Margin.Left + memberVitals.XDirect;
                 topMargin = MemberObject.Margin.Top + memberVitals.YDirect;
@@ -167,6 +171,23 @@ namespace Population
             }
         }
 
+        public bool ShapeIsSolid(Shape MemberShape)
+        {
+            Type t = MemberShape.Tag.GetType();
+            MemberStats ms;
+            bool returnValue;
+
+            if (t == typeof(MemberStats))
+            {
+                ms = (MemberStats)MemberShape.Tag;
+                returnValue = ms.Solid;
+            }
+            else
+                returnValue = false;
+
+            return returnValue;
+        }
+
         public ObjectContact CollisionDetect(Shape MovingShape, Shape StaticShape)
         {
             bool collision;
@@ -177,7 +198,7 @@ namespace Population
             
             collision = (MovingShapeRect.IntersectsWith(StaticShapeRect));
 
-            if (collision)
+            if (collision && ShapeIsSolid(MovingShape) && ShapeIsSolid(StaticShape))
             {
                 if (StaticShapeRect.Contains(MovingShapeRect.TopLeft) || MovingShapeRect.Contains(StaticShapeRect.BottomRight))
                 {
@@ -301,19 +322,20 @@ namespace Population
         {
             MemberStats movingVitals = (MemberStats)movingObject.Tag;
             MemberStats staticVitals = (MemberStats)staticObject.Tag;
+            Random randomAngle = new Random(System.DateTime.Now.Millisecond);
 
             // Determine which edge of the object impacted and change its direction or speed as needed.
 
             if (ContactEdge == ObjectContact.TopLeft)
             {
                 movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
-                movingVitals.YDirect = (Math.Abs(movingVitals.YDirect) * -1);
+                movingVitals.YDirect = randomAngle.Next(1, MAX_JUMP) * -1;
             }
 
             if (ContactEdge == ObjectContact.TopRight)
             {
-                movingVitals.XDirect = (Math.Abs(movingVitals.XDirect) * -1);
-                movingVitals.YDirect = (Math.Abs(movingVitals.YDirect) * -1);
+                movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+                movingVitals.YDirect = randomAngle.Next(1, MAX_JUMP) * -1;
             }
 
             if (ContactEdge == ObjectContact.BottomLeft)
@@ -324,8 +346,28 @@ namespace Population
 
             if (ContactEdge == ObjectContact.BottomRight)
             {
-                movingVitals.XDirect = (Math.Abs(movingVitals.XDirect) * -1);
+                movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
                 movingVitals.YDirect = Math.Abs(movingVitals.YDirect);
+            }
+
+            if (ContactEdge == ObjectContact.Top)
+            {
+                movingVitals.YDirect = Math.Abs(movingVitals.YDirect);
+            }
+
+            if (ContactEdge == ObjectContact.Bottom)
+            {
+                movingVitals.YDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+            }
+
+            if (ContactEdge == ObjectContact.Left)
+            {
+                movingVitals.YDirect = Math.Abs(movingVitals.XDirect);
+            }
+
+            if (ContactEdge == ObjectContact.Right)
+            {
+                movingVitals.YDirect = randomAngle.Next(1, MAX_JUMP) * -1;
             }
 
             //if (ContactEdge == ObjectContact.Left || ContactEdge == ObjectContact.Right)
