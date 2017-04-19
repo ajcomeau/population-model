@@ -97,7 +97,7 @@ namespace Population
 
         private void ControlPanel_Deactivate(object sender, EventArgs e)
         {
-             this.Opacity = .15;
+            this.Opacity = .15;
         }
     }
 }

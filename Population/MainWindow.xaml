@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="550" Width="700" Background="AliceBlue">
     <Canvas x:Name= "FieldCanvas" Width="Auto">
-        <TextBlock x:Name="textCount" Canvas.Left="635" TextWrapping="Wrap" Canvas.Top="10"/>
+
 
 
     </Canvas>

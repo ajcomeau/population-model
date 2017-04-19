@@ -34,7 +34,7 @@ namespace Population
             // Create primary timer to move objects.
             DispatcherTimer PrimaryClock = new DispatcherTimer();
             PrimaryClock.Tick += new EventHandler(PrimaryClock_Tick);
-            PrimaryClock.Interval = new TimeSpan(0, 0, 0, 0, 25);
+            PrimaryClock.Interval = new TimeSpan(0, 0, 0, 0, 30);
             PrimaryClock.Start();
 
             // Create timer to generate new member every few seconds.
@@ -72,6 +72,7 @@ namespace Population
             newMember.Width = 40;
             newMember.Height = 40;
             newMember.Name = "z" + System.DateTime.Now.Ticks.ToString();
+
             Canvas.SetLeft(newMember, 1d);
             Canvas.SetTop(newMember, 1d);
 
@@ -80,14 +81,15 @@ namespace Population
             newMember.Tag = MemberVitals;
             newMember.Fill = new RadialGradientBrush(Color.FromRgb(255, 255, 255), members.GenerateMemberColor(MemberVitals.HealthPoints));
             // Add ToolTip to ellipse with health stat.
-            newMember.ToolTip = "Health: " + MemberVitals.HealthPoints.ToString();
-
             // If the Settings panel requires solid members, make it solid.
             if (members.SolidMembers)
                 MemberVitals.Solid = true;
+            newMember.ToolTip = "Health: " + MemberVitals.HealthPoints;
 
             return newMember;
         }
+
+
 
         private void PrimaryClock_Tick(object sender, EventArgs e)
         {
@@ -98,6 +100,7 @@ namespace Population
             if (members.IsRunning)
             {
                 // Remove members with no health points left.
+
                 for (int idx = FieldCanvas.Children.Count - 1; idx >= 0; idx--)
                 {
                     UIElement uiObject = FieldCanvas.Children[idx];
@@ -111,13 +114,18 @@ namespace Population
                         if ((stats != null && stats.HealthPoints <= 0) || members.ClearAllMembers)
                         {
                             FieldCanvas.Children.RemoveAt(idx);
+                            memberCount--;
                         }
+
                     }
                 }
 
                 // If Clear Mode was activated, turn it off.
                 if (members.ClearAllMembers)
+                {
+                    memberCount = 0;
                     members.ClearAllMembers = false;
+                }
 
                 // Iterate through and move each member.
                 foreach (UIElement uiObject in FieldCanvas.Children)
@@ -130,6 +138,10 @@ namespace Population
                         members.MoveMember(currEllipse);
                     }
                 }
+
+                // Update screen stats.
+
+                this.Title = "BumperCars - Count: " + memberCount;
             }
 
 

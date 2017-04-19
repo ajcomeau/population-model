@@ -20,7 +20,7 @@ namespace Population
         public const int BOUNCE_DIST = 3;           // Amount of recoil when hitting something.
         public const int COLLISION_MEMBER = -15;    // Health affect for hitting another member.
         public const int COLLISION_WALL = 30;       // Health affect for touching wall.
-        public const int HEALTH_PER_STEP = 1;       // Health affect for each step.
+        public const int HEALTH_PER_STEP = 0;       // Health affect for each step.
         public const int BALL_SIZE = 40;            // Ball radius
 
         // Class requires a reference to the canvas for current height and width.
@@ -161,6 +161,9 @@ namespace Population
 
                 // Add any health per step value.
                 memberStats.HealthPoints += HEALTH_PER_STEP;
+
+                // Update ToolTip
+                MemberObject.ToolTip = "Health: " + memberStats.HealthPoints;
             }
         }
 
