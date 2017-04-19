@@ -40,7 +40,7 @@ namespace Population
             // Create timer to generate new member every few seconds.
             NewMemberClock = new DispatcherTimer();
             NewMemberClock.Tick += new EventHandler(NewMemberClock_Tick);
-            NewMemberClock.Interval = new TimeSpan(0, 0, 0, 3);
+            NewMemberClock.Interval = new TimeSpan(0, 0, 0, 2);
             NewMemberClock.Start();
             //FieldCanvas.Children.Add(members.CreateEllipseObject());
 
@@ -48,11 +48,14 @@ namespace Population
 
         private void NewMemberClock_Tick(object sender, EventArgs e)
         {
-            // Generate a new member and add it to the canvas.
-            FieldCanvas.Children.Add(CreateEllipseObject());
-            memberCount++;
-            //if (memberCount > 1)
-            //    NewMemberClock.Stop();
+            if(members.IsRunning)
+            {
+                // Generate a new member and add it to the canvas.
+                FieldCanvas.Children.Add(CreateEllipseObject());
+                memberCount++;
+                //if (memberCount > 1)
+                //    NewMemberClock.Stop();
+            }
         }
 
         public Ellipse CreateEllipseObject()
@@ -89,38 +92,48 @@ namespace Population
         private void PrimaryClock_Tick(object sender, EventArgs e)
         {
 
-            // When the primary timer fires, iterate through the canvas collection
-            // and move each ellipse one step.
-
-            // Remove members with no health points left.
-            for (int idx = FieldCanvas.Children.Count - 1; idx >= 0; idx--)
+            // When the primary timer fires, iterate through the canvas collection,
+            // remove "dead" members and move each ellipse one step.
+            
+            if (members.IsRunning)
             {
-                UIElement uiObject = FieldCanvas.Children[idx];
-
-                Type t = uiObject.GetType();
-
-                if (t == typeof(Ellipse))
+                // Remove members with no health points left.
+                for (int idx = FieldCanvas.Children.Count - 1; idx >= 0; idx--)
                 {
-                    Ellipse currEllipse = (Ellipse)uiObject;
-                    MemberStats stats = (MemberStats)currEllipse.Tag;
-                    if(stats.HealthPoints <= 0)
+                    UIElement uiObject = FieldCanvas.Children[idx];
+
+                    Type t = uiObject.GetType();
+
+                    if (t == typeof(Ellipse))
                     {
-                        FieldCanvas.Children.RemoveAt(idx);
+                        Ellipse currEllipse = (Ellipse)uiObject;
+                        MemberStats stats = members.GetMemberStats(currEllipse);
+                        if ((stats != null && stats.HealthPoints <= 0) || members.ClearAllMembers)
+                        {
+                            FieldCanvas.Children.RemoveAt(idx);
+                        }
+                    }
+                }
+
+                // If Clear Mode was activated, turn it off.
+                if (members.ClearAllMembers)
+                    members.ClearAllMembers = false;
+
+                // Iterate through and move each member.
+                foreach (UIElement uiObject in FieldCanvas.Children)
+                {
+                    Type t = uiObject.GetType();
+
+                    if (t == typeof(Ellipse))
+                    {
+                        Ellipse currEllipse = (Ellipse)uiObject;
+                        members.MoveMember(currEllipse);
                     }
                 }
             }
 
-            // Iterate through and move each member.
-            foreach (UIElement uiObject in FieldCanvas.Children)
-            {
-                Type t = uiObject.GetType();
 
-                if(t == typeof(Ellipse))
-                {
-                    Ellipse currEllipse = (Ellipse)uiObject;
-                        members.MoveMember(currEllipse);                        
-                }
-            }
+
         }
     }
 }

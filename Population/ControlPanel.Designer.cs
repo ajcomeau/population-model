@@ -32,14 +32,10 @@
             this.chkSolid = new System.Windows.Forms.CheckBox();
             this.HelpTips = new System.Windows.Forms.ToolTip(this.components);
             this.chkSolidAll = new System.Windows.Forms.CheckBox();
-            this.tbOpacity = new System.Windows.Forms.TrackBar();
             this.btnStop = new System.Windows.Forms.Button();
             this.btnStart = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
-            this.lblOpacity = new System.Windows.Forms.Label();
-            this.chkOpaqueAll = new System.Windows.Forms.CheckBox();
-            ((System.ComponentModel.ISupportInitialize)(this.tbOpacity)).BeginInit();
             this.SuspendLayout();
             // 
             // chkSolid
@@ -67,21 +63,10 @@
             this.chkSolidAll.UseVisualStyleBackColor = true;
             this.chkSolidAll.CheckedChanged += new System.EventHandler(this.chkSolidAll_CheckedChanged);
             // 
-            // tbOpacity
-            // 
-            this.tbOpacity.Location = new System.Drawing.Point(32, 84);
-            this.tbOpacity.Maximum = 100;
-            this.tbOpacity.Name = "tbOpacity";
-            this.tbOpacity.Size = new System.Drawing.Size(203, 42);
-            this.tbOpacity.TabIndex = 2;
-            this.tbOpacity.TickFrequency = 5;
-            this.HelpTips.SetToolTip(this.tbOpacity, "Adjust the transparency of objects on the screen.");
-            this.tbOpacity.ValueChanged += new System.EventHandler(this.tbOpacity_ValueChanged);
-            // 
             // btnStop
             // 
             this.btnStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStop.Location = new System.Drawing.Point(156, 142);
+            this.btnStop.Location = new System.Drawing.Point(156, 76);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
             this.btnStop.TabIndex = 5;
@@ -93,7 +78,7 @@
             // btnStart
             // 
             this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStart.Location = new System.Drawing.Point(36, 142);
+            this.btnStart.Location = new System.Drawing.Point(36, 76);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
             this.btnStart.TabIndex = 6;
@@ -105,7 +90,7 @@
             // btnClear
             // 
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(36, 193);
+            this.btnClear.Location = new System.Drawing.Point(36, 127);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 23);
             this.btnClear.TabIndex = 7;
@@ -117,7 +102,7 @@
             // btnExit
             // 
             this.btnExit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExit.Location = new System.Drawing.Point(156, 193);
+            this.btnExit.Location = new System.Drawing.Point(156, 127);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(75, 23);
             this.btnExit.TabIndex = 8;
@@ -126,44 +111,23 @@
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
-            // lblOpacity
-            // 
-            this.lblOpacity.AutoSize = true;
-            this.lblOpacity.Location = new System.Drawing.Point(33, 65);
-            this.lblOpacity.Name = "lblOpacity";
-            this.lblOpacity.Size = new System.Drawing.Size(43, 13);
-            this.lblOpacity.TabIndex = 3;
-            this.lblOpacity.Text = "Opacity";
-            // 
-            // chkOpaqueAll
-            // 
-            this.chkOpaqueAll.AutoSize = true;
-            this.chkOpaqueAll.Location = new System.Drawing.Point(157, 65);
-            this.chkOpaqueAll.Name = "chkOpaqueAll";
-            this.chkOpaqueAll.Size = new System.Drawing.Size(78, 17);
-            this.chkOpaqueAll.TabIndex = 4;
-            this.chkOpaqueAll.Text = "Apply to All";
-            this.chkOpaqueAll.UseVisualStyleBackColor = true;
-            this.chkOpaqueAll.CheckedChanged += new System.EventHandler(this.chkOpaqueAll_CheckedChanged);
-            // 
             // ControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(266, 254);
+            this.ClientSize = new System.Drawing.Size(266, 200);
             this.ControlBox = false;
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnStart);
             this.Controls.Add(this.btnStop);
-            this.Controls.Add(this.chkOpaqueAll);
-            this.Controls.Add(this.lblOpacity);
-            this.Controls.Add(this.tbOpacity);
             this.Controls.Add(this.chkSolidAll);
             this.Controls.Add(this.chkSolid);
             this.Name = "ControlPanel";
+            this.Opacity = 0.25D;
             this.Text = "Settings";
-            ((System.ComponentModel.ISupportInitialize)(this.tbOpacity)).EndInit();
+            this.Activated += new System.EventHandler(this.ControlPanel_Activated);
+            this.Deactivate += new System.EventHandler(this.ControlPanel_Deactivate);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -174,9 +138,6 @@
         private System.Windows.Forms.CheckBox chkSolid;
         private System.Windows.Forms.ToolTip HelpTips;
         private System.Windows.Forms.CheckBox chkSolidAll;
-        private System.Windows.Forms.TrackBar tbOpacity;
-        private System.Windows.Forms.Label lblOpacity;
-        private System.Windows.Forms.CheckBox chkOpaqueAll;
         private System.Windows.Forms.Button btnStop;
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnClear;

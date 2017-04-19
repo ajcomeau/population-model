@@ -13,8 +13,6 @@ namespace Population
     // Delegates for data settings.
     public delegate void SolidControlChangeHandler(bool MembersSolid);
     public delegate void SolidAllControlChangeHandler(bool AllMembersSolid);
-    public delegate void OpacityChangeHandler(int Opacity);
-    public delegate void OpacityAllHandler(bool ApplyOpacityToAll);
     public delegate void RuningStatusChangeHandler(bool Running);
 
     public partial class ControlPanel : Form
@@ -23,8 +21,6 @@ namespace Population
 
         public event SolidControlChangeHandler chkSolidChangedEvent;
         public event SolidAllControlChangeHandler chkSolidAllChangedEvent;
-        public event OpacityChangeHandler tbOpacityValueChangedEvent;
-        public event OpacityAllHandler chkOpacityAllChangedEvent;
         public event RuningStatusChangeHandler runStatusChangeEvent;
         public event EventHandler clearButtonClickEvent;
         public event EventHandler exitButtonClickEvent;
@@ -62,22 +58,6 @@ namespace Population
                 handler(chkSolidAll.Checked);
         }
 
-        private void tbOpacity_ValueChanged(object sender, EventArgs e)
-        {
-            // Event for change of opacity slider property.
-            OpacityChangeHandler handler = tbOpacityValueChangedEvent;
-            if (handler != null)
-                handler(tbOpacity.Value);
-        }
-
-        private void chkOpaqueAll_CheckedChanged(object sender, EventArgs e)
-        {
-            // Event for change of Opacity on All checkbox.
-            OpacityAllHandler handler = chkOpacityAllChangedEvent;
-            if (handler != null)
-                handler(chkOpaqueAll.Checked);
-        }
-
         private void btnStart_Click(object sender, EventArgs e)
         {
             // Start process event.
@@ -110,6 +90,14 @@ namespace Population
                 handler(this, e);
         }
 
+        private void ControlPanel_Activated(object sender, EventArgs e)
+        {
+            this.Opacity = 1;
+        }
 
+        private void ControlPanel_Deactivate(object sender, EventArgs e)
+        {
+             this.Opacity = .15;
+        }
     }
 }

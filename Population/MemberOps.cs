@@ -13,13 +13,13 @@ namespace Population
     class MemberOps
     {
         // Enumeration for canvas edges.
-        public enum ObjectContact { Left, TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, None};
+        public enum ObjectContact { Left, TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, None };
 
         // Program constants
         public const int MAX_JUMP = 5;              // Maximum distance to travel in one step.
         public const int BOUNCE_DIST = 3;           // Amount of recoil when hitting something.
         public const int COLLISION_MEMBER = -15;    // Health affect for hitting another member.
-        public const int COLLISION_WALL = 50;       // Health affect for touching wall.
+        public const int COLLISION_WALL = 30;       // Health affect for touching wall.
         public const int HEALTH_PER_STEP = 1;       // Health affect for each step.
         public const int BALL_SIZE = 40;            // Ball radius
 
@@ -30,9 +30,8 @@ namespace Population
         // Values returned from settings panel.
         private bool vSolidMembers;
         private bool vSolidAllMembers;
-        private int vOpacity;
-        private bool vOpacityAll;
         private bool vRunning;
+        private bool vClearAll;
 
         // Properties for settings panel values.
         public bool SolidMembers
@@ -45,19 +44,15 @@ namespace Population
             get { return vSolidAllMembers; }
         }
 
-        public int MemberOpacity
-        {
-            get { return vOpacity; }
-        }
-
-        public bool ApplyOpacityToAll
-        {
-            get { return vOpacityAll; }
-        }
-
         public bool IsRunning
         {
             get { return vRunning; }
+        }
+
+        public bool ClearAllMembers
+        {
+            get { return vClearAll; }
+            set { vClearAll = value; }
         }
 
         public MemberOps(Canvas CurrentCanvas)
@@ -67,6 +62,8 @@ namespace Population
             settingsPanel = new ControlPanel();
             SettingsEventWiring();
             settingsPanel.Show();
+            settingsPanel.TopMost = true;
+            this.vRunning = true;
         }
 
         private void SettingsEventWiring()
@@ -74,36 +71,26 @@ namespace Population
             // Link each event from the control panel to an event handler.
             settingsPanel.chkSolidChangedEvent += SettingsPanel_chkSolidChangedEvent;
             settingsPanel.chkSolidAllChangedEvent += SettingsPanel_chkSolidAllChangedEvent;
-            settingsPanel.tbOpacityValueChangedEvent += SettingsPanel_tbOpacityValueChangedEvent;
-            settingsPanel.chkOpacityAllChangedEvent += SettingsPanel_chkOpacityAllChangedEvent;
             settingsPanel.runStatusChangeEvent += SettingsPanel_runStatusChangeEvent;
             settingsPanel.clearButtonClickEvent += SettingsPanel_clearButtonClickEvent;
             settingsPanel.exitButtonClickEvent += SettingsPanel_exitButtonClickEvent;
         }
 
-        private void SettingsPanel_chkOpacityAllChangedEvent(bool ApplyOpacityToAll)
-        {
-            this.vOpacityAll = ApplyOpacityToAll;
-        }
-
         private void SettingsPanel_exitButtonClickEvent(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            // Shutdown the program.
+            Application.Current.Shutdown();
         }
 
         private void SettingsPanel_clearButtonClickEvent(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            // Turn on clear mode.
+            ClearAllMembers = true;
         }
 
         private void SettingsPanel_runStatusChangeEvent(bool RunStatus)
         {
             this.vRunning = RunStatus;
-        }
-
-        private void SettingsPanel_tbOpacityValueChangedEvent(int MemberOpacityValue)
-        {
-            this.vOpacity = MemberOpacityValue;
         }
 
         private void SettingsPanel_chkSolidAllChangedEvent(bool AllMembersSolid)
@@ -116,30 +103,49 @@ namespace Population
             this.vSolidMembers = MembersSolid;
         }
 
+        public MemberStats GetMemberStats(Shape MemberObject)
+        {
+            MemberStats returnStats = null;
+            Type t = null;
+
+            if (MemberObject.Tag != null)
+            {
+                 t = MemberObject.Tag.GetType();
+            }
+
+            if (t != null && t == typeof(MemberStats))
+            {
+                returnStats = (MemberStats)MemberObject.Tag;
+            }
+
+            return returnStats;
+        }
+
+
+
         public void MoveMember(Shape MemberObject)
         {
             // Get vital stats dictionary
-            Type t = MemberObject.Tag.GetType();
-            MemberStats memberVitals;
+            MemberStats memberStats = GetMemberStats(MemberObject);
             double leftMargin, topMargin;
             ObjectContact contactEdge;
 
-            // Verify type of object tag.
-            if (t == typeof(MemberStats)){
-                memberVitals = (MemberStats)MemberObject.Tag;
+            // Verify presence of member stats.
+            if (memberStats != null){
 
                 // Update color based on health.
-                MemberObject.Fill = new RadialGradientBrush(Color.FromRgb(255, 255, 255), GenerateMemberColor(memberVitals.HealthPoints));
+                MemberObject.Fill = new RadialGradientBrush(Color.FromRgb(255, 255, 255), 
+                    GenerateMemberColor(memberStats.HealthPoints));
 
                 // Update solid setting.
-                if (!memberVitals.Solid && AllMembersSolid)
+                if (!memberStats.Solid && AllMembersSolid)
                 {
-                    memberVitals.Solid = true;
+                    memberStats.Solid = true;
                 }
 
                 // Determine next position by adding information from stats object to current position.
-                leftMargin = MemberObject.Margin.Left + memberVitals.XDirect;
-                topMargin = MemberObject.Margin.Top + memberVitals.YDirect;
+                leftMargin = MemberObject.Margin.Left + memberStats.XDirect;
+                topMargin = MemberObject.Margin.Top + memberStats.YDirect;
                 MemberObject.Margin = new Thickness(leftMargin, topMargin, 0, 0);
 
                 // Scan for collisions with another object.
@@ -149,9 +155,12 @@ namespace Population
                 contactEdge = EdgeDetect(MemberObject);
                 if (contactEdge != ObjectContact.None)
                 {
-                    memberVitals.HealthPoints += COLLISION_WALL;
+                    memberStats.HealthPoints += COLLISION_WALL;
                     MemberBounce(MemberObject, contactEdge);
                 }
+
+                // Add any health per step value.
+                memberStats.HealthPoints += HEALTH_PER_STEP;
             }
         }
 
@@ -159,7 +168,7 @@ namespace Population
         {
 
             ObjectContact collideDetect = ObjectContact.None;
-            MemberStats memberVitals = (MemberStats)MovingShape.Tag;
+            MemberStats memberVitals = GetMemberStats(MovingShape);
 
             foreach (UIElement uiObject in workingCanvas.Children)
             {
@@ -188,18 +197,14 @@ namespace Population
 
         public bool ShapeIsSolid(Shape MemberShape)
         {
-            Type t = MemberShape.Tag.GetType();
-            MemberStats ms;
+            MemberStats ms = GetMemberStats(MemberShape);
             bool returnValue;
 
             // Check the settings of the MemberStats tag to 
             // find out if this shape is solid.
 
-            if (t == typeof(MemberStats))
-            {
-                ms = (MemberStats)MemberShape.Tag;
+            if (ms != null)
                 returnValue = ms.Solid;
-            }
             else
                 returnValue = false;
 
@@ -284,9 +289,6 @@ namespace Population
             double memberRight = (memberBorders.Left + MemberObject.Width);
             double memberBottom = (memberBorders.Top + MemberObject.Height);
 
-            // Get the member tag.
-            MemberStats MemberVitals = (MemberStats)MemberObject.Tag;
-
             ObjectContact firstContact = ObjectContact.None;
 
             // Test each side for contacts.
@@ -312,69 +314,75 @@ namespace Population
 
         private void MemberBounce(Shape memberObject, ObjectContact ContactEdge)
         {
-            MemberStats memberVitals = (MemberStats)memberObject.Tag;
+            MemberStats memberVitals = GetMemberStats(memberObject);
 
             // Determine which edge of the object impacted and change its direction as needed.
-            switch (ContactEdge)
+            if (memberVitals != null)
             {
-                case ObjectContact.Left:
-                    memberVitals.XDirect = Math.Abs(memberVitals.XDirect);
-                    memberObject.Margin = new Thickness(1, memberObject.Margin.Top, 0, 0);
-                    break;
-                case ObjectContact.Right:
-                    memberVitals.XDirect = Math.Abs(memberVitals.XDirect) * (-1);
-                    memberObject.Margin = new Thickness((workingCanvas.ActualWidth - memberObject.Width - 1), memberObject.Margin.Top, 0, 0);
-                    break;
-                case ObjectContact.Top:
-                    memberVitals.YDirect = Math.Abs(memberVitals.YDirect);
-                    memberObject.Margin = new Thickness(memberObject.Margin.Left, 1, 0, 0);
-                    break;
-                case ObjectContact.Bottom:
-                    memberVitals.YDirect = Math.Abs(memberVitals.YDirect) * (-1);
-                    memberObject.Margin = new Thickness(memberObject.Margin.Left, (workingCanvas.ActualHeight - memberObject.Height - 1), 0, 0);
-                    break;
+                switch (ContactEdge)
+                {
+                    case ObjectContact.Left:
+                        memberVitals.XDirect = Math.Abs(memberVitals.XDirect);
+                        memberObject.Margin = new Thickness(1, memberObject.Margin.Top, 0, 0);
+                        break;
+                    case ObjectContact.Right:
+                        memberVitals.XDirect = Math.Abs(memberVitals.XDirect) * (-1);
+                        memberObject.Margin = new Thickness((workingCanvas.ActualWidth - memberObject.Width - 1), memberObject.Margin.Top, 0, 0);
+                        break;
+                    case ObjectContact.Top:
+                        memberVitals.YDirect = Math.Abs(memberVitals.YDirect);
+                        memberObject.Margin = new Thickness(memberObject.Margin.Left, 1, 0, 0);
+                        break;
+                    case ObjectContact.Bottom:
+                        memberVitals.YDirect = Math.Abs(memberVitals.YDirect) * (-1);
+                        memberObject.Margin = new Thickness(memberObject.Margin.Left, (workingCanvas.ActualHeight - memberObject.Height - 1), 0, 0);
+                        break;
+                }
             }
         }
 
         private void MemberBounce(Shape movingObject, Shape staticObject, ObjectContact ContactEdge)
         {
             // Bounce on impact between two objects.
-            MemberStats movingVitals = (MemberStats)movingObject.Tag;
-            MemberStats staticVitals = (MemberStats)staticObject.Tag;
+            MemberStats movingVitals = GetMemberStats(movingObject);
+            MemberStats staticVitals = GetMemberStats(staticObject);
             Random randomAngle = new Random(System.DateTime.Now.Millisecond);
 
             // Determine which edge of the object impacted and change its direction or speed as needed.
 
-            switch (ContactEdge)
+            if (movingVitals != null && staticVitals != null)
             {
-                case ObjectContact.TopLeft:
-                    movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
-                    movingObject.Margin = new Thickness(movingObject.Margin.Left + BOUNCE_DIST, movingObject.Margin.Top + BOUNCE_DIST, 0, 0);
-                    break;
-                case ObjectContact.TopRight:
-                    movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
-                    movingObject.Margin = new Thickness(movingObject.Margin.Left - BOUNCE_DIST, movingObject.Margin.Top + BOUNCE_DIST, 0, 0);
-                    break;
-                case ObjectContact.BottomLeft:
-                    movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
-                    movingObject.Margin = new Thickness(movingObject.Margin.Left + BOUNCE_DIST, movingObject.Margin.Top - BOUNCE_DIST, 0, 0);
-                    break;
-                case ObjectContact.BottomRight:
-                    movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
-                    movingObject.Margin = new Thickness(movingObject.Margin.Left - BOUNCE_DIST, movingObject.Margin.Top - BOUNCE_DIST, 0, 0);
-                    break;
-                case ObjectContact.Top:
-                    movingVitals.YDirect = Math.Abs(movingVitals.YDirect);
-                    break;
-                case ObjectContact.Bottom:
-                    movingVitals.YDirect = randomAngle.Next(1, MAX_JUMP) * -1;
-                    break;
-                case ObjectContact.Left:
-                    movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
-                    break;
-                case ObjectContact.Right:
-                    movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
-                    break;
+                switch (ContactEdge)
+                {
+                    case ObjectContact.TopLeft:
+                        movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
+                        movingObject.Margin = new Thickness(movingObject.Margin.Left + BOUNCE_DIST, movingObject.Margin.Top + BOUNCE_DIST, 0, 0);
+                        break;
+                    case ObjectContact.TopRight:
+                        movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+                        movingObject.Margin = new Thickness(movingObject.Margin.Left - BOUNCE_DIST, movingObject.Margin.Top + BOUNCE_DIST, 0, 0);
+                        break;
+                    case ObjectContact.BottomLeft:
+                        movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
+                        movingObject.Margin = new Thickness(movingObject.Margin.Left + BOUNCE_DIST, movingObject.Margin.Top - BOUNCE_DIST, 0, 0);
+                        break;
+                    case ObjectContact.BottomRight:
+                        movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+                        movingObject.Margin = new Thickness(movingObject.Margin.Left - BOUNCE_DIST, movingObject.Margin.Top - BOUNCE_DIST, 0, 0);
+                        break;
+                    case ObjectContact.Top:
+                        movingVitals.YDirect = Math.Abs(movingVitals.YDirect);
+                        break;
+                    case ObjectContact.Bottom:
+                        movingVitals.YDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+                        break;
+                    case ObjectContact.Left:
+                        movingVitals.XDirect = Math.Abs(movingVitals.XDirect);
+                        break;
+                    case ObjectContact.Right:
+                        movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+                        break;
+                }
             }
 
         }
@@ -387,25 +395,23 @@ namespace Population
             int greenComponent = 0;
             int remaining = HealthPoints;
 
-            // THERE'S PROBABLY A SHORTER WAY TO DO THIS INVOLVING A WHILE LOOP OR SOMETHING (hint, hint)
+            // THERE'S PROBABLY A SHORTER WAY TO DO THIS INVOLVING A WHILE LOOP OR SOMETHING 
             // Subtract 255 at a time from the health points. Apply the points
             // first to the Blue, then Green, then Red.
             // This will make the color fade from White to Yellow to Red to Black.
 
-            if((remaining / 255) > 2)
-            {
-                redComponent = 255;
-                greenComponent = 255;
-                blueComponent = 230;
-                remaining = 0;
-            }
+            // Keep the number within certain limits.
+            // If it's too bright or too dark, it doesn't look good.
+            if (remaining > 700)
+                remaining = 700;
 
-            if(remaining > 510)
+            if (remaining < 225)
+                remaining = 225;
+
+            if (remaining > 510)
             {
                 blueComponent = (remaining - 510);
                 remaining -= blueComponent;
-                if (blueComponent > 230)
-                    blueComponent = 230;
             }
 
             if(remaining > 255)
