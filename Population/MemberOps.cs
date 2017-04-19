@@ -19,7 +19,7 @@ namespace Population
         public const int MAX_JUMP = 5;              // Maximum distance to travel in one step.
         public const int BOUNCE_DIST = 3;           // Amount of recoil when hitting something.
         public const int COLLISION_MEMBER = -15;    // Health affect for hitting another member.
-        public const int COLLISION_WALL = 30;       // Health affect for touching wall.
+        public const int COLLISION_WALL = 50;       // Health affect for touching wall.
         public const int HEALTH_PER_STEP = 0;       // Health affect for each step.
         public const int BALL_SIZE = 40;            // Ball radius
 
@@ -235,43 +235,43 @@ namespace Population
                     contactPoint = ObjectContact.TopLeft;
                 }
 
-                if ((contactPoint == ObjectContact.None) && 
+                if ((contactPoint == ObjectContact.None) &&
                     (StaticShapeRect.Contains(MovingShapeRect.TopRight) || MovingShapeRect.Contains(StaticShapeRect.BottomLeft)))
                 {
                     contactPoint = ObjectContact.TopRight;
                 }
 
-                if ((contactPoint == ObjectContact.None) && 
+                if ((contactPoint == ObjectContact.None) &&
                     (StaticShapeRect.Contains(MovingShapeRect.BottomRight) || MovingShapeRect.Contains(StaticShapeRect.TopLeft)))
                 {
                     contactPoint = ObjectContact.BottomRight;
                 }
 
-                if ((contactPoint == ObjectContact.None) && 
+                if ((contactPoint == ObjectContact.None) &&
                     (StaticShapeRect.Contains(MovingShapeRect.BottomLeft) || MovingShapeRect.Contains(StaticShapeRect.TopRight)))
                 {
                     contactPoint = ObjectContact.BottomLeft;
                 }
 
-                if ((contactPoint == ObjectContact.None) && 
+                if ((contactPoint == ObjectContact.None) &&
                     (MovingShapeRect.Top <= StaticShapeRect.Bottom && MovingShapeRect.Top > StaticShapeRect.Top))
                 {
                     contactPoint = ObjectContact.Top;
                 }
 
-                if ((contactPoint == ObjectContact.None) && 
+                if ((contactPoint == ObjectContact.None) &&
                     (MovingShapeRect.Bottom >= StaticShapeRect.Top && MovingShapeRect.Bottom < StaticShapeRect.Bottom))
                 {
                     contactPoint = ObjectContact.Bottom;
                 }
 
-                if ((contactPoint == ObjectContact.None) && 
+                if ((contactPoint == ObjectContact.None) &&
                     (MovingShapeRect.Left <= StaticShapeRect.Right && MovingShapeRect.Left > StaticShapeRect.Left))
                 {
                     contactPoint = ObjectContact.Left;
                 }
 
-                if ((contactPoint == ObjectContact.None) && 
+                if ((contactPoint == ObjectContact.None) &&
                     (MovingShapeRect.Right >= StaticShapeRect.Left && MovingShapeRect.Right > StaticShapeRect.Right))
                 {
                     contactPoint = ObjectContact.Right;

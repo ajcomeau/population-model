@@ -29,6 +29,11 @@ namespace Population
             set
             {
                 health = value;
+
+                // If the health points are 0, make the 
+                // object non-solid.
+                if (health <= 0)
+                    this.Solid = false;
             }
         }
 

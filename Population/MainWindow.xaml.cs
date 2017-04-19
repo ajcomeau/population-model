@@ -113,8 +113,13 @@ namespace Population
                         MemberStats stats = members.GetMemberStats(currEllipse);
                         if ((stats != null && stats.HealthPoints <= 0) || members.ClearAllMembers)
                         {
-                            FieldCanvas.Children.RemoveAt(idx);
-                            memberCount--;
+                            // Fade out and then remove from collection.
+                            currEllipse.Opacity -= .025;
+                            if (currEllipse.Opacity < .05)
+                            {
+                                FieldCanvas.Children.RemoveAt(idx);
+                                memberCount--;
+                            }
                         }
 
                     }
@@ -135,7 +140,10 @@ namespace Population
                     if (t == typeof(Ellipse))
                     {
                         Ellipse currEllipse = (Ellipse)uiObject;
-                        members.MoveMember(currEllipse);
+                        if (members.GetMemberStats(currEllipse).HealthPoints > 0)
+                        {
+                            members.MoveMember(currEllipse);
+                        }
                     }
                 }
 
