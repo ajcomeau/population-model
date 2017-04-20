@@ -126,8 +126,8 @@
             this.Name = "ControlPanel";
             this.Opacity = 0.25D;
             this.Text = "Settings";
-            this.Activated += new System.EventHandler(this.ControlPanel_Activated);
             this.Deactivate += new System.EventHandler(this.ControlPanel_Deactivate);
+            this.MouseEnter += new System.EventHandler(this.ControlPanel_MouseEnter);
             this.ResumeLayout(false);
             this.PerformLayout();
 

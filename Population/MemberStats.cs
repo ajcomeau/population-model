@@ -12,14 +12,20 @@ namespace Population
         private int xDir;
         private int yDir;
         private bool solid;
+        private bool live;
 
         public MemberStats(int Health, int XDirect, int YDirect)
         {
-            this.health = Health;
-            this.xDir = XDirect;
-            this.yDir = YDirect;
+            this.HealthPoints = Health;
+            this.XDirect = XDirect;
+            this.YDirect = YDirect;
         }
 
+        public bool Alive
+        {
+            get { return live; }
+            set { live = value; }
+        }
         public int HealthPoints
         {
             get
@@ -31,9 +37,16 @@ namespace Population
                 health = value;
 
                 // If the health points are 0, make the 
-                // object non-solid.
+                // object non-solid and no longer alive.
                 if (health <= 0)
+                {
                     this.Solid = false;
+                    this.Alive = false;
+                }
+                else
+                {
+                    this.Alive = true;
+                }
             }
         }
 

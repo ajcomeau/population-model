@@ -408,8 +408,8 @@ namespace Population
             if (remaining > 700)
                 remaining = 700;
 
-            if (remaining < 225)
-                remaining = 225;
+            if (remaining < 150)
+                remaining = 150;
 
             if (remaining > 510)
             {

@@ -90,14 +90,15 @@ namespace Population
                 handler(this, e);
         }
 
-        private void ControlPanel_Activated(object sender, EventArgs e)
-        {
-            this.Opacity = 1;
-        }
 
         private void ControlPanel_Deactivate(object sender, EventArgs e)
         {
-            this.Opacity = .15;
+            this.Opacity = .20;
+        }
+
+        private void ControlPanel_MouseEnter(object sender, EventArgs e)
+        {
+            this.Opacity = 1;
         }
     }
 }

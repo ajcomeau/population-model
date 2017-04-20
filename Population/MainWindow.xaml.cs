@@ -85,10 +85,25 @@ namespace Population
             if (members.SolidMembers)
                 MemberVitals.Solid = true;
             newMember.ToolTip = "Health: " + MemberVitals.HealthPoints;
-
             return newMember;
         }
 
+        private void ClearMembers()
+        {
+            // Clear all member objects from canvas children collection.
+
+            for (int idx = FieldCanvas.Children.Count - 1; idx >= 0; idx--)
+            {
+                UIElement uiObject = FieldCanvas.Children[idx];
+
+                Type t = uiObject.GetType();
+
+                if (t == typeof(Ellipse))
+                {
+                    FieldCanvas.Children.RemoveAt(idx);
+                }
+            }
+        }
 
 
         private void PrimaryClock_Tick(object sender, EventArgs e)
@@ -99,8 +114,16 @@ namespace Population
             
             if (members.IsRunning)
             {
-                // Remove members with no health points left.
+                // If Clear Mode is on, clear the collection.
 
+                if (members.ClearAllMembers)
+                {
+                    ClearMembers();
+                    memberCount = 0;
+                    members.ClearAllMembers = false;
+                }
+
+                // Remove members with no health points left.
                 for (int idx = FieldCanvas.Children.Count - 1; idx >= 0; idx--)
                 {
                     UIElement uiObject = FieldCanvas.Children[idx];
@@ -111,7 +134,7 @@ namespace Population
                     {
                         Ellipse currEllipse = (Ellipse)uiObject;
                         MemberStats stats = members.GetMemberStats(currEllipse);
-                        if ((stats != null && stats.HealthPoints <= 0) || members.ClearAllMembers)
+                        if (stats != null && !stats.Alive)
                         {
                             // Fade out and then remove from collection.
                             currEllipse.Opacity -= .025;
@@ -125,14 +148,7 @@ namespace Population
                     }
                 }
 
-                // If Clear Mode was activated, turn it off.
-                if (members.ClearAllMembers)
-                {
-                    memberCount = 0;
-                    members.ClearAllMembers = false;
-                }
-
-                // Iterate through and move each member.
+                // Iterate through and move each live member.
                 foreach (UIElement uiObject in FieldCanvas.Children)
                 {
                     Type t = uiObject.GetType();
@@ -140,7 +156,7 @@ namespace Population
                     if (t == typeof(Ellipse))
                     {
                         Ellipse currEllipse = (Ellipse)uiObject;
-                        if (members.GetMemberStats(currEllipse).HealthPoints > 0)
+                        if (members.GetMemberStats(currEllipse).Alive)
                         {
                             members.MoveMember(currEllipse);
                         }
