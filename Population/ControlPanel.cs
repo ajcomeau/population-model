@@ -14,6 +14,7 @@ namespace Population
     public delegate void SolidControlChangeHandler(bool MembersSolid);
     public delegate void SolidAllControlChangeHandler(bool AllMembersSolid);
     public delegate void RuningStatusChangeHandler(bool Running);
+    public delegate void NewMemberIntervalHander(double Seconds);
 
     public partial class ControlPanel : Form
     {
@@ -24,10 +25,28 @@ namespace Population
         public event RuningStatusChangeHandler runStatusChangeEvent;
         public event EventHandler clearButtonClickEvent;
         public event EventHandler exitButtonClickEvent;
+        public event NewMemberIntervalHander secondsChangeEvent;
 
         public ControlPanel()   
         {
             InitializeComponent();
+        }
+
+        private void nudSeconds_ValueChanged(object sender, EventArgs e)
+        {
+
+
+            try
+            {
+                NewMemberIntervalHander handler = secondsChangeEvent;
+                if (handler != null)
+                    handler((double)nudSeconds.Value);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error ...");
+            }
+
         }
 
         protected void chkSolid_CheckedChanged(object sender, EventArgs e)
@@ -35,59 +54,106 @@ namespace Population
             // Event for change of solid setting.
 
             SolidControlChangeHandler handler = chkSolidChangedEvent;
-            if (handler != null)
-                handler(chkSolid.Checked);
-
-            // If Solid is unchecked, uncheck the SolidAll setting.
-
-            if (!this.chkSolid.Checked)
+            try
             {
-                this.chkSolidAll.Checked = false;
+                if (handler != null)
+                    handler(chkSolid.Checked);
+
+                // If Solid is unchecked, uncheck the SolidAll setting.
+
+                if (!this.chkSolid.Checked)
+                {
+                    this.chkSolidAll.Checked = false;
+                }
+
+                // Disable SolidAll if Solid is unchecked.
+
+                this.chkSolidAll.Enabled = this.chkSolid.Checked;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message,"Error ...");
             }
 
-            // Disable SolidAll if Solid is unchecked.
-
-            this.chkSolidAll.Enabled = this.chkSolid.Checked;
         }
 
         private void chkSolidAll_CheckedChanged(object sender, EventArgs e)
         {
             // Event for change of SolidAll property.
-            SolidAllControlChangeHandler handler = chkSolidAllChangedEvent;
-            if (handler != null)
-                handler(chkSolidAll.Checked);
+            try
+            {
+                SolidAllControlChangeHandler handler = chkSolidAllChangedEvent;
+                if (handler != null)
+                    handler(chkSolidAll.Checked);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error ...");
+            }
+
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            // Start process event.
-            RuningStatusChangeHandler handler = runStatusChangeEvent;
-            if (handler != null)
-                handler(true);
+            try
+            {
+                // Start process event.
+                RuningStatusChangeHandler handler = runStatusChangeEvent;
+                if (handler != null)
+                    handler(true);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error ...");
+            }
         }
+
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            // Stop process event.
-            RuningStatusChangeHandler handler = runStatusChangeEvent;
-            if (handler != null)
-                handler(false);
+            try
+            {
+                // Stop process event.
+                RuningStatusChangeHandler handler = runStatusChangeEvent;
+                if (handler != null)
+                    handler(false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error ...");
+            }
+
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            // Clear process event.
-            EventHandler handler = clearButtonClickEvent;
-            if (handler != null)
-                handler(this, e);
+            try
+            {
+                // Clear process event.
+                EventHandler handler = clearButtonClickEvent;
+                if (handler != null)
+                    handler(this, e);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error ...");
+            }
+
         }
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            // Exit button event.
-            EventHandler handler = exitButtonClickEvent;
-            if (handler != null)
-                handler(this, e);
+            try
+            {
+                // Exit button event.
+                EventHandler handler = exitButtonClickEvent;
+                if (handler != null)
+                    handler(this, e);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error ...");
+            }
         }
 
 
@@ -100,5 +166,6 @@ namespace Population
         {
             this.Opacity = 1;
         }
+
     }
 }

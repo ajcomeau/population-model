@@ -36,12 +36,16 @@
             this.btnStart = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnExit = new System.Windows.Forms.Button();
+            this.nudSeconds = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.nudSeconds)).BeginInit();
             this.SuspendLayout();
             // 
             // chkSolid
             // 
             this.chkSolid.AutoSize = true;
-            this.chkSolid.Location = new System.Drawing.Point(32, 25);
+            this.chkSolid.Location = new System.Drawing.Point(32, 26);
             this.chkSolid.Name = "chkSolid";
             this.chkSolid.Size = new System.Drawing.Size(114, 17);
             this.chkSolid.TabIndex = 0;
@@ -54,7 +58,7 @@
             // 
             this.chkSolidAll.AutoSize = true;
             this.chkSolidAll.Enabled = false;
-            this.chkSolidAll.Location = new System.Drawing.Point(157, 25);
+            this.chkSolidAll.Location = new System.Drawing.Point(157, 26);
             this.chkSolidAll.Name = "chkSolidAll";
             this.chkSolidAll.Size = new System.Drawing.Size(74, 17);
             this.chkSolidAll.TabIndex = 1;
@@ -66,10 +70,10 @@
             // btnStop
             // 
             this.btnStop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStop.Location = new System.Drawing.Point(156, 76);
+            this.btnStop.Location = new System.Drawing.Point(156, 104);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(75, 23);
-            this.btnStop.TabIndex = 5;
+            this.btnStop.TabIndex = 4;
             this.btnStop.Text = "Stop";
             this.HelpTips.SetToolTip(this.btnStop, "Pause animation.");
             this.btnStop.UseVisualStyleBackColor = true;
@@ -78,10 +82,10 @@
             // btnStart
             // 
             this.btnStart.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStart.Location = new System.Drawing.Point(36, 76);
+            this.btnStart.Location = new System.Drawing.Point(36, 104);
             this.btnStart.Name = "btnStart";
             this.btnStart.Size = new System.Drawing.Size(75, 23);
-            this.btnStart.TabIndex = 6;
+            this.btnStart.TabIndex = 3;
             this.btnStart.Text = "Start";
             this.HelpTips.SetToolTip(this.btnStart, "Start animation.");
             this.btnStart.UseVisualStyleBackColor = true;
@@ -90,10 +94,10 @@
             // btnClear
             // 
             this.btnClear.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(36, 127);
+            this.btnClear.Location = new System.Drawing.Point(36, 144);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 23);
-            this.btnClear.TabIndex = 7;
+            this.btnClear.TabIndex = 5;
             this.btnClear.Text = "Clear";
             this.HelpTips.SetToolTip(this.btnClear, "Clear objects from field.");
             this.btnClear.UseVisualStyleBackColor = true;
@@ -102,14 +106,52 @@
             // btnExit
             // 
             this.btnExit.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExit.Location = new System.Drawing.Point(156, 127);
+            this.btnExit.Location = new System.Drawing.Point(156, 144);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(75, 23);
-            this.btnExit.TabIndex = 8;
+            this.btnExit.TabIndex = 6;
             this.btnExit.Text = "Exit";
             this.HelpTips.SetToolTip(this.btnExit, "Exit the program.");
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
+            // 
+            // nudSeconds
+            // 
+            this.nudSeconds.DecimalPlaces = 1;
+            this.nudSeconds.Location = new System.Drawing.Point(132, 58);
+            this.nudSeconds.Minimum = new decimal(new int[] {
+            2,
+            0,
+            0,
+            65536});
+            this.nudSeconds.Name = "nudSeconds";
+            this.nudSeconds.Size = new System.Drawing.Size(50, 20);
+            this.nudSeconds.TabIndex = 2;
+            this.nudSeconds.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.nudSeconds.Value = new decimal(new int[] {
+            2,
+            0,
+            0,
+            0});
+            this.nudSeconds.ValueChanged += new System.EventHandler(this.nudSeconds_ValueChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(28, 60);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(98, 13);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "New member every";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(186, 60);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(50, 13);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "seconds.";
             // 
             // ControlPanel
             // 
@@ -117,6 +159,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(266, 200);
             this.ControlBox = false;
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.nudSeconds);
             this.Controls.Add(this.btnExit);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnStart);
@@ -128,6 +173,7 @@
             this.Text = "Settings";
             this.Deactivate += new System.EventHandler(this.ControlPanel_Deactivate);
             this.MouseEnter += new System.EventHandler(this.ControlPanel_MouseEnter);
+            ((System.ComponentModel.ISupportInitialize)(this.nudSeconds)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -142,5 +188,8 @@
         private System.Windows.Forms.Button btnStart;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Button btnExit;
+        private System.Windows.Forms.NumericUpDown nudSeconds;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }

@@ -32,6 +32,12 @@ namespace Population
         private bool vSolidAllMembers;
         private bool vRunning;
         private bool vClearAll;
+        private double vNewMemberInterval;
+
+        public double NewMemberInterval
+        {
+            get { return vNewMemberInterval; }
+        }
 
         // Properties for settings panel values.
         public bool SolidMembers
@@ -63,6 +69,7 @@ namespace Population
             SettingsEventWiring();
             settingsPanel.Show();
             settingsPanel.TopMost = true;
+            this.vNewMemberInterval = 2.0;
             this.vRunning = true;
         }
 
@@ -74,6 +81,12 @@ namespace Population
             settingsPanel.runStatusChangeEvent += SettingsPanel_runStatusChangeEvent;
             settingsPanel.clearButtonClickEvent += SettingsPanel_clearButtonClickEvent;
             settingsPanel.exitButtonClickEvent += SettingsPanel_exitButtonClickEvent;
+            settingsPanel.secondsChangeEvent += SettingsPanel_secondsChangeEvent;
+        }
+
+        private void SettingsPanel_secondsChangeEvent(double Seconds)
+        {
+            this.vNewMemberInterval = Seconds;
         }
 
         private void SettingsPanel_exitButtonClickEvent(object sender, EventArgs e)
@@ -362,7 +375,7 @@ namespace Population
                         movingObject.Margin = new Thickness(movingObject.Margin.Left + BOUNCE_DIST, movingObject.Margin.Top + BOUNCE_DIST, 0, 0);
                         break;
                     case ObjectContact.TopRight:
-                        movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+                        movingVitals.XDirect = Math.Abs(movingVitals.XDirect) * -1; // randomAngle.Next(1, MAX_JUMP) * -1;
                         movingObject.Margin = new Thickness(movingObject.Margin.Left - BOUNCE_DIST, movingObject.Margin.Top + BOUNCE_DIST, 0, 0);
                         break;
                     case ObjectContact.BottomLeft:
@@ -370,7 +383,7 @@ namespace Population
                         movingObject.Margin = new Thickness(movingObject.Margin.Left + BOUNCE_DIST, movingObject.Margin.Top - BOUNCE_DIST, 0, 0);
                         break;
                     case ObjectContact.BottomRight:
-                        movingVitals.XDirect = randomAngle.Next(1, MAX_JUMP) * -1;
+                        movingVitals.XDirect = Math.Abs(movingVitals.XDirect) * -1; // randomAngle.Next(1, MAX_JUMP) * -1;
                         movingObject.Margin = new Thickness(movingObject.Margin.Left - BOUNCE_DIST, movingObject.Margin.Top - BOUNCE_DIST, 0, 0);
                         break;
                     case ObjectContact.Top:
