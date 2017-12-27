@@ -8,17 +8,26 @@ namespace Population
 {
     class MemberStats
     {
+        private SQLiteData dataAcc = new SQLiteData();
         private int health;
         private int xDir;
         private int yDir;
         private bool solid;
         private bool live;
+        private int memid;
 
         public MemberStats(int Health, int XDirect, int YDirect)
         {
             this.HealthPoints = Health;
             this.XDirect = XDirect;
             this.YDirect = YDirect;
+            this.MemberID = dataAcc.AddMember();
+        }
+
+        public int MemberID
+        {
+            get { return memid; }
+            set { memid = value; }
         }
 
         public bool Alive
@@ -42,6 +51,7 @@ namespace Population
                 {
                     this.Solid = false;
                     this.Alive = false;
+                    dataAcc.RemoveMember(this.memid);
                 }
                 else
                 {
